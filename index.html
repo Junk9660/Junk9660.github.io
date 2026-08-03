@@ -97,44 +97,44 @@
     <div class="grid">
         <a href="./save_system/" class="card">
             <img src="save_thumbnail.png" alt="Save System Screenshot" class="card-img">
-            <span class="tag">C++ / UE5</span>
-            <h3>Modular Save System</h3>
-            <p>Component-based state persistence, asynchronous binary serialization, and custom struct handling across play sessions.</p>
+            <span class="tag">C++ / Subsystem / Interface</span>
+            <h3>Subsystem-Driven Save System</h3>
+            <p>Persistent state save architecture managed via a UGameInstanceSubsystem, using C++ interfaces for decoupled actor serialization across level transitions.</p>
         </a>
 
         <a href="./interaction_system/" class="card">
             <img src="interaction_thumbnail.png" alt="Interaction System Screenshot" class="card-img">
-            <span class="tag">C++ / Interfaces</span>
-            <h3>Decoupled Interaction System</h3>
-            <p>Raycast priority matching, interface-based actor responses, and delegate-driven HUD updates without Tick execution.</p>
+            <span class="tag">C++ / Interface</span>
+            <h3>Interface-Driven Interaction System</h3>
+            <p>Modular and decoupled interaction component utilizing C++ interfaces and trace sweep.</p>
         </a>
 
         <a href="./inventory_system/" class="card">
             <img src="inventory_thumbnail.png" alt="Inventory System Screenshot" class="card-img">
-            <span class="tag">C++ / UMG</span>
+            <span class="tag">C++ / Plugin</span>
             <h3>Grid Inventory System</h3>
             <p>Spatial 2D grid management featuring dynamic 90° item matrix rotation, dynamic grid expansion, and persistent state saves.</p>
         </a>
 
         <a href="./loot_system/" class="card">
             <img src="loot_thumbnail.png" alt="Loot System Screenshot" class="card-img">
-            <span class="tag">C++ / CommonUI / Inventory</span>
-            <h3>Grid Loot System</h3>
-            <p>Grid loot system, based on item architecture from the Grid Inventory System, fully compatible with gamepad.</p>
+            <span class="tag">C++ / Plugin / CommonUI</span>
+            <h3>Slot Based Loot System</h3>
+            <p>Fixed grid looting system built from Inventory system item management, with full CommonUI controller support.</p>
         </a>
 
         <a href="./ai_system/" class="card">
             <img src="ai_thumbnail.png" alt="AI System Screenshot" class="card-img">
-            <span class="tag">C++ / AI / StateTree</span>
-            <h3>AI System</h3>
-            <p>AI system for NPC interaction with the world, with StateTree.</p>
+            <span class="tag">C++ / StateTree</span>
+            <h3>StateTree NPC AI System</h3>
+            <p>AI system for NPC interaction with the world, using StateTree framework.</p>
         </a>
 
         <a href="./quest_system/" class="card">
             <img src="quest_thumbnail.png" alt="AI System Screenshot" class="card-img">
-            <span class="tag">C++ / Quest</span>
-            <h3>Quest System</h3>
-            <p>Quest system.</p>
+            <span class="tag">C++ / Subsystem</span>
+            <h3>Quest Subsystem</h3>
+            <p>Event-Driven quest framwork based on UGameInstanceSubsystem and UObject using delegates to update the UI.</p>
         </a>
     </div>
 
