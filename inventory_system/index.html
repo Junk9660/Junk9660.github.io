@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UE5 C++ Grid Inventory & Save Integration</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; line-height: 1.6; max-width: 850px; margin: 0 auto; padding: 20px; background: #0f172a; color: #e2e8f0; }
+        h1, h2, h3 { color: #38bdf8; }
+        .back-link { display: inline-block; margin-bottom: 20px; color: #38bdf8; text-decoration: none; font-weight: bold; }
+        .back-link:hover { text-decoration: underline; }
+        .video-container { position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; margin-bottom: 20px; border-radius: 8px; }
+        .video-container iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0; }
+        img { max-width: 100%; height: auto; border-radius: 8px; margin: 15px 0; border: 1px solid #334155; }
+        .btn { display: inline-block; background: #0284c7; color: white; padding: 10px 20px; border-radius: 5px; text-decoration: none; margin-right: 10px; font-weight: bold; }
+        .btn:hover { background: #0369a1; }
+        ul { background: #1e293b; padding: 20px 40px; border-radius: 8px; border: 1px solid #334155; }
+        .attribution-box { background: #1e293b; padding: 20px; border-left: 4px solid #38bdf8; border-radius: 4px; margin: 20px 0; border-top: 1px solid #334155; border-right: 1px solid #334155; border-bottom: 1px solid #334155; }
+    </style>
+</head>
+<body>
+
+    <a href="../" class="back-link">← Back to Main Portfolio</a>
+
+    <h1>UE5 C++ Grid & Spatial Inventory System</h1>
+    <p><strong>Engine Version:</strong> Unreal Engine 5.4 | <strong>Language:</strong> C++ / Blueprints</p>
+
+    <div class="attribution-box">
+        <h3 style="margin-top:0;">Architecture Baseline & Extensions</h3>
+        <p>This system was built upon <strong>Stephen Ulibarri's C++ Inventory Architecture</strong> baseline, which was then extended with custom feature additions including item rotation, dynamic grid expansion, and persistent state saving.</p>
+    </div>
+
+    <h2>1. Mechanics Video Demo</h2>
+    <div class="video-container">
+        <iframe src="https://www.youtube.com/embed/YOUR_YOUTUBE_ID" allowfullscreen></iframe>
+    </div>
+
+    <h2>2. Technical Features & Custom Work</h2>
+    <ul>
+        <li><strong>Course Baseline:</strong> 2D spatial grid, drag-and-drop item management, and item stack splitting/combining.</li>
+        <li><strong>Custom Extension — Item Rotation (90°):</strong> Implemented dynamic matrix rotation in C++ to allow rectangular items to rotate and re-validate bounding slots before placement.</li>
+        <li><strong>Custom Extension — Dynamic Grid Expansion:</strong> Developed runtime grid resizing logic driven by backpack upgrades and character traits.</li>
+        <li><strong>Custom Extension — Save System Integration:</strong> Serialized grid item coordinates, stack quantities, and custom item struct parameters directly into the <code>USaveGame</code> architecture.</li>
+    </ul>
+
+    <h2>3. Persistence & Component Architecture</h2>
+    <p>Diagram illustrating how the inventory component interfaces with the dynamic save system during write operations.</p>
+    <img src="inventory-save-architecture.png" alt="Inventory Save System Flow Diagram">
+
+    <h2>4. C++ Code Snippets</h2>
+    <p>Custom C++ logic for 90° matrix rotation and slot boundary verification:</p>
+    <img src="inventory-rotation-code.png" alt="Carbon C++ Item Rotation Snippet">
+
+    <h2 style="margin-top: 30px;">5. Links & Repositories</h2>
+    <a href="https://github.com/Junk9660/YOUR-REPO-NAME" class="btn" target="_blank">View Source Code on GitHub</a>
+    <a href="https://Junk9660.itch.io/YOUR-DEMO" class="btn" style="background:#475569;" target="_blank">Download Playable Demo (Itch.io)</a>
+
+</body>
+</html>
