@@ -52,18 +52,19 @@
     </p>
 
     <div style="position: relative; margin-top: 15px;">
-        <button onclick="copyCode(this)" style="position: absolute; top: 10px; right: 10px; background: #334155; color: #f8fafc; border: 1px solid #475569; padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; cursor: pointer;">Copy</button>
+        <button onclick="copyCode(this)">Copy</button>
         <pre>
         <code class="language-cpp">
-        // Check if the actor should be ignored during save serialization
-        if (Actor->Implements<USaveableInterface>())
-        {
-            const FGameplayTagContainer TagContainer = ISaveableInterface::Execute_GetSaveStateTags(Actor);
-            if (TagContainer.HasTagExact(FGameplayTag::RequestGameplayTag(FName("Save.Ignore"))))
-            {
-                return; // Skip transient actor
-            }
-        }
+// SaveSubsystem.cpp
+// Check if the actor should be ignored during save serialization
+if (Actor->Implements<USaveableInterface>())
+{
+    const FGameplayTagContainer TagContainer = ISaveableInterface::Execute_GetSaveStateTags(Actor);
+    if (TagContainer.HasTagExact(FGameplayTag::RequestGameplayTag(FName("Save.Ignore"))))
+    {
+        return; // Skip transient actor
+    }
+}
         </code></pre>
     </div>
 </div>
