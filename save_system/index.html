@@ -33,4 +33,19 @@
         <li><strong>Component-Based Persistence:</strong> Built using a reusable <code>USaveableComponent</code> pattern, allowing any world actor to become persistent without hardcoding write routines.</li>
         <li><strong>Struct Serialization:</strong> Encapsulates transform data, actor states, dynamic arrays, and variables into clean C++ structs for efficient I/O.</li>
         <li><strong>Asynchronous Processing:</strong> Utilizes non-blocking async save/load routines to prevent frame hangups during heavy disk writes.</li>
-        <li><strong>State Restoration Edge Cases:</strong> Properly reinstantiates dynamic
+        <li><strong>State Restoration Edge Cases:</strong> Properly reinstantiates dynamic actors destroyed or spawned during play sessions upon loading.</li>
+    </ul>
+
+    <h2>3. Data Flow Diagram</h2>
+    <p>Architectural breakdown showing how world components write to the <code>USaveGameInstance</code> binary container during save events:</p>
+    <img src="save-system-architecture.png" alt="Save System Data Flow Diagram">
+
+    <h2>4. C++ Code Highlights</h2>
+    <p>Header definition for the core serialization structs and <code>USaveableComponent</code> interface:</p>
+    <img src="save-system-code.png" alt="Carbon C++ Save System Code Snippet">
+
+    <div class="contact-box">
+        </div>
+
+</body>
+</html>
