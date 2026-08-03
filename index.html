@@ -2,50 +2,126 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gameplay Programmer Portfolio</title>
     <style>
-        body { font-family: sans-serif; background: #0f172a; color: #f8fafc; max-width: 900px; margin: 0 auto; padding: 40px 20px; }
-        h1 { color: #38bdf8; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-top: 30px; }
-        .card { background: #1e293b; border-radius: 8px; padding: 20px; border: 1px solid #334155; text-decoration: none; color: inherit; transition: transform 0.2s; }
-        .card:hover { transform: translateY(-5px); border-color: #38bdf8; }
-        .card h3 { margin-top: 0; color: #38bdf8; }
-        .tag { background: #0284c7; font-size: 0.8rem; padding: 3px 8px; border-radius: 4px; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
+            line-height: 1.6; 
+            max-width: 900px; 
+            margin: 0 auto; 
+            padding: 40px 20px; 
+            background: #0f172a; 
+            color: #f8fafc; 
+        }
+        h1 { color: #38bdf8; margin-bottom: 5px; }
+        .subtitle { color: #94a3b8; margin-top: 0; font-size: 1.1rem; }
+        
+        /* Grid Layout */
+        .grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); 
+            gap: 25px; 
+            margin-top: 30px; 
+        }
+        
+        /* Responsive Fix: Stack 1 element per line on mobile screens */
+        @media (max-width: 650px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Card Component */
+        .card { 
+            background: #1e293b; 
+            border-radius: 8px; 
+            padding: 20px; 
+            border: 1px solid #334155; 
+            text-decoration: none; 
+            color: inherit; 
+            transition: transform 0.2s, border-color 0.2s; 
+            display: flex;
+            flex-direction: column;
+        }
+        .card:hover { 
+            transform: translateY(-5px); 
+            border-color: #38bdf8; 
+        }
+        
+        /* Card Image Feature */
+        .card-img {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            border: 1px solid #334155;
+            background-color: #0f172a; /* Fallback background if image is loading */
+        }
+
+        .card h3 { margin: 10px 0 5px 0; color: #38bdf8; }
+        .tag { 
+            align-self: flex-start;
+            background: #0284c7; 
+            color: #fff;
+            font-size: 0.8rem; 
+            padding: 3px 8px; 
+            border-radius: 4px; 
+            font-weight: bold;
+        }
+        .card p { color: #cbd5e1; font-size: 0.95rem; margin-bottom: 0; }
+        
+        /* Footer Contact Box */
+        .contact-box {
+            background: #1e293b;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px dashed #475569;
+            margin-top: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
     </style>
 </head>
 <body>
 
-    <h1>Jane Doe — UE5 C++ Gameplay Programmer</h1>
-    <p>Specializing in modular systems, custom character components, and game architecture.</p>
+    <h1>Junk9660 — UE5 C++ Gameplay Programmer</h1>
+    <p class="subtitle">Specializing in modular systems, custom components, and persistent architecture.</p>
 
     <h2>Featured Mechanics & Systems</h2>
 
     <div class="grid">
-        <a href="./save_system/" class="card">
+        <a href="./save-system/" class="card">
+            <img src="save-thumbnail.png" alt="Save System Screenshot" class="card-img">
             <span class="tag">C++ / UE5</span>
             <h3>Modular Save System</h3>
-            <p>Component-based state persistence, asynchronous binary serialization, and custom struct handling.</p>
+            <p>Component-based state persistence, asynchronous binary serialization, and custom struct handling across play sessions.</p>
         </a>
 
-        <a href="./interaction_system/" class="card">
+        <a href="./interaction-system/" class="card">
+            <img src="interaction-thumbnail.png" alt="Interaction System Screenshot" class="card-img">
             <span class="tag">C++ / Interfaces</span>
             <h3>Decoupled Interaction System</h3>
-            <p>Raycast priority matching, interface-based actor responses, and HUD delegate triggers.</p>
+            <p>Raycast priority matching, interface-based actor responses, and delegate-driven HUD updates without Tick execution.</p>
         </a>
-        <a href="./inventory_system/" class="card">
-            <span class="tag">C++ / UE5</span>
-            <h3>Modular Inventory System</h3>
-            <p>Inventory system based on Stephen Ulibarri's courses, with additional features</p>
+
+        <a href="./inventory-system/" class="card">
+            <img src="inventory-thumbnail.png" alt="Inventory System Screenshot" class="card-img">
+            <span class="tag">C++ / UMG</span>
+            <h3>Grid Inventory System</h3>
+            <p>Spatial 2D grid management featuring dynamic 90° item matrix rotation, dynamic grid expansion, and persistent state saves.</p>
         </a>
     </div>
 
-    <div class="contact-box" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
+    <div class="contact-box">
         <div>
             <span style="color: #94a3b8; font-size: 0.9rem; display: block;">Get in Touch / Inquiry:</span>
             <a href="mailto:myemail@email.com" style="color: #38bdf8; font-weight: bold; text-decoration: none; font-size: 1.1rem;">myemail@email.com</a>
         </div>
-        <div>
-            </div>
     </div>
 
 </body>
