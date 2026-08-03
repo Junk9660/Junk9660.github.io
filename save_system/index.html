@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>UE5 C++ Modular Save System</title>
+    <title>UE5 C++ Subsystem Save System</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-okaidia.min.css" rel="stylesheet" />
     <style>
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; line-height: 1.6; max-width: 850px; margin: 0 auto; padding: 20px; background: #0f172a; color: #e2e8f0; }
         h1, h2, h3 { color: #38bdf8; }
@@ -20,7 +21,7 @@
 
     <a href="../" class="back-link">← Back to Main Portfolio</a>
 
-    <h1>UE5 C++ Modular Save System</h1>
+    <h1>UE5 C++ Subsystem-Driven Save System</h1>
     <p><strong>Engine Version:</strong> Unreal Engine 5.4 | <strong>Language:</strong> C++ / Blueprints</p>
 
     <h2>1. State Persistence & Stress Test Video</h2>
@@ -52,15 +53,18 @@
 
     <div style="position: relative; margin-top: 15px;">
         <button onclick="copyCode(this)" style="position: absolute; top: 10px; right: 10px; background: #334155; color: #f8fafc; border: 1px solid #475569; padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; cursor: pointer;">Copy</button>
-        <pre style="background: #090d16; padding: 15px; border-radius: 6px; border: 1px solid #334155; overflow-x: auto; margin: 0;"><code style="color: #f8fafc; font-family: Consolas, Monaco, 'Andale Mono', monospace; font-size: 0.85rem;">// Check if the actor should be ignored during save serialization
-if (Actor->Implements<USaveableInterface>())
-{
-    const FGameplayTagContainer TagContainer = ISaveableInterface::Execute_GetSaveStateTags(Actor);
-    if (TagContainer.HasTagExact(FGameplayTag::RequestGameplayTag(FName("Save.Ignore"))))
-    {
-        return; // Skip transient actor
-    }
-}</code></pre>
+        <pre style="background: #090d16; padding: 15px; border-radius: 6px; border: 1px solid #334155; overflow-x: auto; margin: 0;">
+        <code class="language-cpp" style="color: #f8fafc; font-family: Consolas, Monaco, 'Andale Mono', monospace; font-size: 0.85rem;">
+        // Check if the actor should be ignored during save serialization
+        if (Actor->Implements<USaveableInterface>())
+        {
+            const FGameplayTagContainer TagContainer = ISaveableInterface::Execute_GetSaveStateTags(Actor);
+            if (TagContainer.HasTagExact(FGameplayTag::RequestGameplayTag(FName("Save.Ignore"))))
+            {
+                return; // Skip transient actor
+            }
+        }
+        </code></pre>
     </div>
 </div>
 
