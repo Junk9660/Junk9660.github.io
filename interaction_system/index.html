@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UE5 C++ Decoupled Interaction System</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; line-height: 1.6; max-width: 850px; margin: 0 auto; padding: 20px; background: #0f172a; color: #e2e8f0; }
+        h1, h2, h3 { color: #38bdf8; }
+        .back-link { display: inline-block; margin-bottom: 20px; color: #38bdf8; text-decoration: none; font-weight: bold; }
+        .back-link:hover { text-decoration: underline; }
+        .video-container { position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; margin-bottom: 20px; border-radius: 8px; }
+        .video-container iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0; }
+        img { max-width: 100%; height: auto; border-radius: 8px; margin: 15px 0; border: 1px solid #334155; }
+        .btn { display: inline-block; background: #0284c7; color: white; padding: 10px 20px; border-radius: 5px; text-decoration: none; margin-right: 10px; font-weight: bold; }
+        .btn:hover { background: #0369a1; }
+        ul { background: #1e293b; padding: 20px 40px; border-radius: 8px; border: 1px solid #334155; }
+        .bp-embed { width: 100%; height: 400px; border: 1px solid #334155; border-radius: 8px; margin: 15px 0; }
+    </style>
+</head>
+<body>
+
+    <a href="../" class="back-link">← Back to Main Portfolio</a>
+
+    <h1>UE5 C++ Decoupled Interaction System</h1>
+    <p><strong>Engine Version:</strong> Unreal Engine 5.4 | <strong>Language:</strong> C++ / Blueprints</p>
+
+    <h2>1. Gameplay Video Showcase</h2>
+    <div class="video-container">
+        <iframe src="https://www.youtube.com/embed/YOUR_YOUTUBE_ID" allowfullscreen></iframe>
+    </div>
+
+    <h2>2. Technical Architecture</h2>
+    <ul>
+        <li><strong>Interface-Driven (<code>IInteractableInterface</code>):</strong> Decouples the character from interacting actors, eliminating hard casting.</li>
+        <li><strong>Raycast Priority System:</strong> Performs dynamic line-traces/sphere-sweeps to select the optimal target when multiple interactable actors overlap.</li>
+        <li><strong>UI Binding via Delegates:</strong> Fires dynamic broadcast delegates to update HUD prompts without polling on <code>Tick</code>.</li>
+        <li><strong>Edge-Case Handling:</strong> Smoothly handles dynamic actor destruction, range limits, and interrupted channel interactions.</li>
+    </ul>
+
+    <h2>3. Class & Interface Diagram</h2>
+    <p>Visual overview of how the character component communicates with interactive world actors via C++ interfaces.</p>
+    <img src="interaction-architecture.png" alt="Interaction System Architecture Diagram">
+
+    <h2>4. C++ Code Highlights</h2>
+    <p><code>IInteractableInterface.h</code> declaration and interaction check logic:</p>
+    <img src="interaction-interface-code.png" alt="Carbon C++ Interface Snippet">
+
+    <h2>5. Blueprint & UI Integration</h2>
+    <p>Interactive graph showing how UMG widgets listen to C++ delegates for prompt displays:</p>
+    <iframe src="https://blueprintue.com/render/YOUR_BP_ID/" class="bp-embed" scrolling="no"></iframe>
+
+    <h2 style="margin-top: 30px;">6. Links & Source Code</h2>
+    <a href="https://github.com/Junk9660/YOUR-REPO-NAME" class="btn" target="_blank">View Source Code on GitHub</a>
+    <a href="https://Junk9660.itch.io/YOUR-DEMO" class="btn" style="background:#475569;" target="_blank">Download Playable Demo (Itch.io)</a>
+
+</body>
+</html>
