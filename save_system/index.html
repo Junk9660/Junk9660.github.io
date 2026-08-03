@@ -3,43 +3,34 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>UE5 C++ Save System Showcase</title>
+    <title>UE5 C++ Modular Save System</title>
     <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; line-height: 1.6; max-width: 800px; margin: 0 auto; padding: 20px; background: #0f172a; color: #e2e8f0; }
-        h1, h2 { color: #38bdf8; }
-        .video-container { position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; margin-bottom: 20px; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; line-height: 1.6; max-width: 850px; margin: 0 auto; padding: 20px; background: #0f172a; color: #e2e8f0; }
+        h1, h2, h3 { color: #38bdf8; }
+        .back-link { display: inline-block; margin-bottom: 20px; color: #38bdf8; text-decoration: none; font-weight: bold; }
+        .back-link:hover { text-decoration: underline; }
+        .video-container { position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; margin-bottom: 20px; border-radius: 8px; }
         .video-container iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0; }
-        img { max-width: 100%; height: auto; border-radius: 8px; margin: 10px 0; }
-        .btn { display: inline-block; background: #0284c7; color: white; padding: 10px 20px; border-radius: 5px; text-decoration: none; margin-right: 10px; font-weight: bold; }
-        .btn:hover { background: #0369a1; }
-        ul { background: #1e293b; padding: 20px 40px; border-radius: 8px; }
+        img { max-width: 100%; height: auto; border-radius: 8px; margin: 15px 0; border: 1px solid #334155; }
+        ul { background: #1e293b; padding: 20px 40px; border-radius: 8px; border: 1px solid #334155; }
+        .contact-box { background: #1e293b; padding: 15px 20px; border-radius: 8px; border: 1px dashed #475569; margin-top: 30px; }
     </style>
 </head>
 <body>
 
+    <a href="../" class="back-link">← Back to Main Portfolio</a>
+
     <h1>UE5 C++ Modular Save System</h1>
     <p><strong>Engine Version:</strong> Unreal Engine 5.4 | <strong>Language:</strong> C++ / Blueprints</p>
 
-    <h2>Gameplay & Mechanics Video</h2>
+    <h2>1. State Persistence & Stress Test Video</h2>
     <div class="video-container">
         <iframe src="https://www.youtube.com/embed/YOUR_YOUTUBE_ID" allowfullscreen></iframe>
     </div>
 
-    <h2>Technical Breakdown</h2>
+    <h2>2. Technical Architecture</h2>
     <ul>
-        <li><strong>Component-Based Architecture:</strong> Built using a custom <code>USaveableComponent</code> for decoupled object persistence.</li>
-        <li><strong>Dynamic Serialization:</strong> Saves character transforms, inventory arrays, and dynamic world states to custom structs.</li>
-        <li><strong>Edge-Case Management:</strong> Handles asynchronous saves to prevent frame hitching during heavy data writes.</li>
-    </ul>
-
-    <h2>Architecture Diagram</h2>
-    <img src="architecture-diagram.png" alt="Save System Architecture Diagram">
-
-    <h2>C++ Header Snippet</h2>
-    <img src="code-snippet.png" alt="Carbon C++ Code Snippet">
-
-    <h2 style="margin-top: 30px;">Source Code & Project Links</h2>
-    <!--To add stuff here, maybe email-->
-
-</body>
-</html>
+        <li><strong>Component-Based Persistence:</strong> Built using a reusable <code>USaveableComponent</code> pattern, allowing any world actor to become persistent without hardcoding write routines.</li>
+        <li><strong>Struct Serialization:</strong> Encapsulates transform data, actor states, dynamic arrays, and variables into clean C++ structs for efficient I/O.</li>
+        <li><strong>Asynchronous Processing:</strong> Utilizes non-blocking async save/load routines to prevent frame hangups during heavy disk writes.</li>
+        <li><strong>State Restoration Edge Cases:</strong> Properly reinstantiates dynamic
