@@ -66,22 +66,30 @@ if (Actor->Implements<USaveableInterface>())
     }
 }
         </code></pre>
+        </div>
     </div>
-</div>
 
-<script>
-function copyCode(button) {
-    const codeBlock = button.nextElementSibling.querySelector('code');
-    navigator.clipboard.writeText(codeBlock.innerText).then(() => {
-        button.innerText = 'Copied!';
-        button.style.background = '#0284c7';
-        setTimeout(() => {
-            button.innerText = 'Copy';
-            button.style.background = '#334155';
-        }, 2000);
-    });
-}
-</script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-c.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-cpp.min.js"></script>
+
+    <script>
+        function copyCode(button) {
+            const codeContainer = button.nextElementSibling;
+            const codeBlock = codeContainer.querySelector('code');
+            
+            navigator.clipboard.writeText(codeBlock.innerText).then(() => {
+                const originalText = button.innerText;
+                button.innerText = 'Copied!';
+                button.style.background = '#0284c7';
+                
+                setTimeout(() => {
+                    button.innerText = originalText;
+                    button.style.background = '#334155';
+                }, 2000);
+            });
+        }
+    </script>
 
     <div class="contact-box" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
         <div>
