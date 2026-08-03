@@ -44,6 +44,40 @@
     <p>Header definition for the core serialization structs and <code>USaveableComponent</code> interface:</p>
     <img src="save-system-code.png" alt="Carbon C++ Save System Code Snippet">
 
+    <div class="feature-card">
+    <h3>Selective Filtering via GameplayTags</h3>
+    <p>
+        Optimizes serialization sweeps by checking <code>FGameplayTag</code> containers, skipping transient actors during save sweeps.
+    </p>
+
+    <div style="position: relative; margin-top: 15px;">
+        <button onclick="copyCode(this)" style="position: absolute; top: 10px; right: 10px; background: #334155; color: #f8fafc; border: 1px solid #475569; padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; cursor: pointer;">Copy</button>
+        <pre style="background: #090d16; padding: 15px; border-radius: 6px; border: 1px solid #334155; overflow-x: auto; margin: 0;"><code style="color: #f8fafc; font-family: Consolas, Monaco, 'Andale Mono', monospace; font-size: 0.85rem;">// Check if the actor should be ignored during save serialization
+if (Actor->Implements<USaveableInterface>())
+{
+    const FGameplayTagContainer TagContainer = ISaveableInterface::Execute_GetSaveStateTags(Actor);
+    if (TagContainer.HasTagExact(FGameplayTag::RequestGameplayTag(FName("Save.Ignore"))))
+    {
+        return; // Skip transient actor
+    }
+}</code></pre>
+    </div>
+</div>
+
+<script>
+function copyCode(button) {
+    const codeBlock = button.nextElementSibling.querySelector('code');
+    navigator.clipboard.writeText(codeBlock.innerText).then(() => {
+        button.innerText = 'Copied!';
+        button.style.background = '#0284c7';
+        setTimeout(() => {
+            button.innerText = 'Copy';
+            button.style.background = '#334155';
+        }, 2000);
+    });
+}
+</script>
+
     <div class="contact-box" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
         <div>
             <span style="color: #94a3b8; font-size: 0.9rem; display: block;">Get in Touch / Inquiry:</span>
