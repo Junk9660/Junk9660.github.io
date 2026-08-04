@@ -33,6 +33,7 @@
         <li><strong>Multi-Grid Storage Mapping:</strong> Organizes save data into a <code>TMap&lt;int32, FInventorySaveData&gt;</code> structure, mapping distinct sub-grids (e.g., Equippables vs. Consumables) alongside active equipment slots.</li>
         <li><strong>Anchor-Slot Deduplication:</strong> Prevents data duplication for multi-tile spatial items by filtering save sweeps to only capture upper-left anchor coordinates (<code>UpperLeftIndex</code>).</li>
         <li><strong>State Reconstruction Pipeline:</strong> Restores dimensions, reconstructs runtime grid bounds, and instantiates item instances using factory manifests to safely restore dynamic UI listeners and server state.</li>
+        <li><strong>Code reusability:</strong> Reused most logic and code from the original inventory system.</li>
     </ul>
 
     <h2>3. System Architecture & Data Flow</h2>
