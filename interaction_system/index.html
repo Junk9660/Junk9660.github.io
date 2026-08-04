@@ -21,15 +21,15 @@
 
     <h2>2. Technical Architecture</h2>
     <ul>
-        <li><strong>Interface-Driven (<code>IInteractableInterface</code>):</strong> Decouples the character from interacting actors, eliminating hard casting.</li>
-        <li><strong>Raycast Priority System:</strong> Performs dynamic line-traces/sphere-sweeps to select the optimal target when multiple interactable actors overlap.</li>
-        <li><strong>UI Binding via Delegates:</strong> Fires dynamic broadcast delegates to update HUD prompts without polling on <code>Tick</code>.</li>
-        <li><strong>Edge-Case Handling:</strong> Smoothly handles dynamic actor destruction, range limits, and interrupted channel interactions.</li>
+        <li><strong>Interface-Driven Architecture (<code>IInteractionInterface</code>):</strong> Decouples interaction logic from specific actor classes, executing interactions cleanly without hard casting.</li>
+        <li><strong>Dynamic Trace Sweeping:</strong> Utilizes line-traces and sphere-sweeps to continuously evaluate interactable targets and manage actor highlight states in real time.</li>
+        <li><strong>Direct HUD & Hold-Press Integration:</strong> Communicates target state directly to the HUD class to render interaction widgets and drive timed hold-press progress bars.</li>
+        <li><strong>Edge-Case & Interruption Handling:</strong> Manages state cleanup, timer cancellations for early input releases, and out-of-range target resets to prevent orphaned UI prompts.</li>
     </ul>
 
     <h2>3. Class & Interface Diagram</h2>
-    <p>Visual overview of how the character component communicates with interactive world actors via C++ interfaces.</p>
-    <img src="interaction-architecture.png" alt="Interaction System Architecture Diagram">
+    <p>Visual overview of how the interaction component communicates with interactive world actors via C++ interfaces.</p>
+    <img src="./interaction-architecture.png" alt="Interaction System Architecture Diagram">
 
     <h2>4. C++ Code Highlights</h2>
     <p><code>IInteractableInterface.h</code> declaration and interaction check logic:</p>
