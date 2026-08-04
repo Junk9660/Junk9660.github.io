@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>UE5 C++ System Showcase — [System Name]</title>
+    <title>UE5 C++ Loot System CommonUI</title>
     <link rel="stylesheet" href="../style.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-okaidia.min.css" rel="stylesheet" />
 </head>
@@ -11,12 +11,12 @@
 
     <a href="../" class="back-link">← Back to Main Portfolio</a>
 
-    <h1>UE5 C++ [System Name Here]</h1>
-    <p><strong>Engine Version:</strong> Unreal Engine 5.4 | <strong>Language:</strong> C++ / Blueprints</p>
+    <h1>UE5 C++ Loot System CommonUI</h1>
+    <p><strong>Engine Version:</strong> Unreal Engine 5.6 | <strong>Language:</strong> C++ / CommonUI</p>
 
     <div class="context-box">
         <h3 style="margin-top:0;">Architecture Context & Baseline</h3>
-        <p>Short note about the origin or goal of the system (e.g., built from scratch, extended from a baseline, or designed for a game jam project).</p>
+        <p>Controller compatible loot system using CommonUI, full integration with the Inventory System by using Instance struct.</p>
     </div>
 
     <h2>1. Gameplay Video Showcase</h2>
@@ -26,15 +26,15 @@
 
     <h2>2. Key Technical Features</h2>
     <ul>
-        <li><strong>Architecture Pattern:</strong> Describe the overall structure (e.g., Component-based, Interface-driven, State Machine).</li>
-        <li><strong>Core C++ Logic:</strong> Mention specific C++ features used (e.g., Delegates, Async traces, Templates, Struct serialization).</li>
-        <li><strong>Performance Optimization:</strong> Highlight memory handling, pooling, tick minimization, or caching methods.</li>
-        <li><strong>Edge Case Handling:</strong> Detail how the code responds to errors, interruptions, dynamic destruction, or full/empty states.</li>
+        <li><strong>Component Driven:</strong> Loot Component for easy integration with any actor, by using a list of items.</li>
+        <li><strong>Inventory Compatible:</strong> Fully compatible with the Inventory System by using the <code>FInv_ItemManifest</code>.</li>
+        <li><strong>CommonUI:</strong> Use of CommonUI for full compatibility between controllers and keyboards, with key indication.</li>
+        <li><strong>Loot UI Manager Component:</strong> For a single reference for each Loot Display.</li>
     </ul>
 
     <h2>3. System Architecture & Data Flow</h2>
     <p>Visual overview showing class relations, data streams, or component interaction.</p>
-    <img src="system-architecture.png" alt="System Architecture Diagram">
+    <img src="loot_architecture.png" alt="System Architecture Diagram">
 
     <h2>4. C++ Code Highlights</h2>
     <p>Key header file declarations or core functions generated via Carbon/Ray.so:</p>
@@ -44,8 +44,11 @@
     <p>Interactive graph showing C++ delegate triggers or UMG bindings:</p>
     <iframe src="https://blueprintue.com/render/YOUR_BP_ID/" class="bp-embed" scrolling="no"></iframe>
 
-    <h2>6. Code Repository</h2>
-    <a href="https://github.com/Junk9660/YOUR-REPO-NAME" class="btn" target="_blank">View Repository on GitHub</a>
+    <h2>6. Improvements</h2>
+    <p>Use of DataAsset for actors which will contains the same list of loot items.</p>
+
+    <h2>7. Code Repository</h2>
+    <a href="https://github.com/Junk9660/UE5_InventoryPlugin" class="btn" target="_blank">View Repository on GitHub</a>
 
     <div class="contact-box">
         <div>
