@@ -16,7 +16,7 @@
 
     <div class="context-box">
         <h3 style="margin-top:0;">Architecture Context & Baseline</h3>
-        <p>Short note about the origin or goal of the system (e.g., built from scratch, extended from a baseline, or designed for a game jam project).</p>
+        <p>Event-Driven quest system to track quests and player interaction, integrating full UI for player information.</p>
     </div>
 
     <h2>1. Gameplay Video Showcase</h2>
@@ -26,19 +26,19 @@
 
     <h2>2. Key Technical Features</h2>
     <ul>
-        <li><strong>Architecture Pattern:</strong> Describe the overall structure (e.g., Component-based, Interface-driven, State Machine).</li>
-        <li><strong>Core C++ Logic:</strong> Mention specific C++ features used (e.g., Delegates, Async traces, Templates, Struct serialization).</li>
-        <li><strong>Performance Optimization:</strong> Highlight memory handling, pooling, tick minimization, or caching methods.</li>
-        <li><strong>Edge Case Handling:</strong> Detail how the code responds to errors, interruptions, dynamic destruction, or full/empty states.</li>
+        <li><strong>Event-Driven <code>UQuestSubsystem</code>:</strong> Use of a Subsystem as an event bus to handle quest updates and UI updates.</li>
+        <li><strong>Easy Integration:</strong> Use of Data Asset for visual quest creation and exposed variables for quest update.</li>
+        <li><strong>Modular System:</strong> Implement a <code>QuestComponent</code> for modular integration on any actor and trigger.</li>
+        <li><strong>UI Delegates:</strong> Execute delegate to update the UI based on active quest, providing real time information.</li>
     </ul>
 
     <h2>3. System Architecture & Data Flow</h2>
     <p>Visual overview showing class relations, data streams, or component interaction.</p>
-    <img src="system-architecture.png" alt="System Architecture Diagram">
+    <img src="system_architecture.png" alt="System Architecture Diagram">
 
     <h2>4. C++ Code Highlights</h2>
     <p>Key header file declarations or core functions generated via Carbon/Ray.so:</p>
-    <img src="code-snippet.png" alt="Carbon C++ Snippet">
+    <img src="code_snippet.png" alt="Carbon C++ Snippet">
 
     <h2>5. Blueprint & Designer Exposure</h2>
     <p>Interactive graph showing C++ delegate triggers or UMG bindings:</p>

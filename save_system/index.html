@@ -61,32 +61,29 @@
     <h2>5. Advanced System Features</h2>
 
     <details class="feature-details">
-        <summary><strong>Gameplay Tag Filtering</strong> — Skip transient & dynamic actors during sweeps</summary>
+        <summary><strong>Gameplay Tag Filtering</strong> — Check player state to allow saving</summary>
         <div class="details-content">
-            <p>
-                Prevents serializing dynamic or transient actors (like temporary particle spawners, projectiled hazards, or procedural props) by querying tag containers before executing memory sweeps.
-            </p>
+            <p> Prevents saving if the player is in defined states, by quering <code>FGameplayTag</code> (player jumping, in combat, ...)</p>
             <div class="code-container">
                 <button class="copy-btn" onclick="copyCode(this)">Copy</button>
                 <pre><code class="language-cpp">// SaveSubsystem.cpp
-    if (Actor->Implements<USaveInterface>())
+if (Actor->Implements<USaveInterface>())
+{
+    const FGameplayTagContainer TagContainer = ISaveInterface::Execute_GetSaveStateTags(Actor);
+    if (TagContainer.HasTagExact(FGameplayTag::RequestGameplayTag(FName("Save.Ignore"))))
     {
-        const FGameplayTagContainer TagContainer = ISaveInterface::Execute_GetSaveStateTags(Actor);
-        if (TagContainer.HasTagExact(FGameplayTag::RequestGameplayTag(FName("Save.Ignore"))))
-        {
-            return; // Skip transient actor
-        }
-    }</code></pre>
+        return; // Skip transient actor
+    }
+}</code></pre>
             </div>
         </div>
     </details>
 
     <details class="feature-details">
-        <summary><strong>Auto-Save Triggers & Checkpoints</strong> — Async background saving via triggers</summary>
+        <summary><strong>Auto save and Save Component</strong> — Async background saving via world actors</summary>
         <div class="details-content">
-            <p> //Integrate info about delay between 2 saves, so it doesn't create auto save every 5 seconds
-                Integrates seamless checkpoint saves using volume triggers and timed component events. The <code>SaveSubsystem</code> processes these auto-save calls asynchronously on a background thread to prevent gameplay hitches during critical transitions.
-            </p>
+            <p>Integrates seamless checkpoint saves on any actor, by using a <code>SaveComponent</code>.
+            The <code>SaveSubsystem</code> processes these auto-save calls asynchronously, while preventing multiple auto save in a short interval.</p>
         </div>
     </details>
 
