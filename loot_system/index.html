@@ -36,18 +36,57 @@
     <p>Visual overview showing class relations, data streams, or component interaction.</p>
     <img src="loot_architecture.png" alt="System Architecture Diagram">
 
-    <h2>4. C++ Code Highlights</h2>
-    <p>Key header file declarations or core functions generated via Carbon/Ray.so:</p>
-    <img src="code-snippet.png" alt="Carbon C++ Snippet">
+    <h2>4. Technical Deep-Dives</h2>
+    <div class="feature-card">
+    <h3>CommonUI Stack & Data Table Action Binding</h3>
+    <p>
+        Utilizes <code>UCommonActivatableWidget</code> to manage UI focus and input handling. Action rows are bound dynamically upon widget activation to handle controller/keyboard inputs cleanly without polling.
+    </p>
+    <div class="code-container">
+        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        <pre><code class="language-cpp">// Inv_LootDisplay.cpp
+void UInv_LootDisplay::NativeOnActivated()
+{
+    Super::NativeOnActivated();
+    RefreshLootUI();
 
-    <h2>5. Blueprint & Designer Exposure</h2>
-    <p>Interactive graph showing C++ delegate triggers or UMG bindings:</p>
-    <iframe src="https://blueprintue.com/render/YOUR_BP_ID/" class="bp-embed" scrolling="no"></iframe>
+    FBindUIActionArgs BindArgs(TakeAllActionRow, FSimpleDelegate::CreateUObject(this, &UInv_LootDisplay::TakeAll));
+    BindArgs.bDisplayInActionBar = true;
+    TakeAllBindingHandle = RegisterUIActionBinding(BindArgs);
+}</code></pre>
+        </div>
+    </div>
 
-    <h2>6. Improvements</h2>
+    <div class="feature-card">
+        <h3>Container Transaction Pipeline</h3>
+        <p>
+            Executes non-destructive item transfers using inventory space sweeps (<code>TryAddItemManifest</code>). Based on stack remainders, the local container updates or clears its local manifests while notifying the component to replicate updated states.
+        </p>
+        <div class="code-container">
+            <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+            <pre><code class="language-cpp">// Inv_LootDisplay.cpp
+FInv_SlotAvailabilityResult Result = IC->TryAddItemManifest(Item);
+
+if (Result.Remainder == 0)
+{
+    LootSlot->DisableSlot();
+    OnItemAdded.Broadcast(TileIndex, Result.Remainder);
+}
+else
+{
+    if (FInv_StackableFragment* Stackable = Item.GetFragmentOfTypeMutable<FInv_StackableFragment>())
+    {
+        Stackable->SetStackCount(Result.Remainder);
+    }
+    OnItemAdded.Broadcast(TileIndex, Result.Remainder);
+}</code></pre>
+        </div>
+    </div>
+
+    <h2>5. Improvements</h2>
     <p>Use of DataAsset for actors which will contains the same list of loot items.</p>
 
-    <h2>7. Code Repository</h2>
+    <h2>6. Code Repository</h2>
     <a href="https://github.com/Junk9660/UE5_InventoryPlugin" class="btn" target="_blank">View Repository on GitHub</a>
 
     <div class="contact-box">
