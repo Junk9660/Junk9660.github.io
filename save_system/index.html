@@ -21,39 +21,58 @@
 
     <h2>2. Technical Architecture</h2>
     <ul>
-        <li><strong>Component-Based Persistence:</strong> Built using a reusable <code>USaveableComponent</code> pattern, allowing any world actor to become persistent without hardcoding write routines.</li>
-        <li><strong>Struct Serialization:</strong> Encapsulates transform data, actor states, dynamic arrays, and variables into clean C++ structs for efficient I/O.</li>
-        <li><strong>Asynchronous Processing:</strong> Utilizes non-blocking async save/load routines to prevent frame hangups during heavy disk writes.</li>
-        <li><strong>State Restoration Edge Cases:</strong> Properly reinstantiates dynamic actors destroyed or spawned during play sessions upon loading.</li>
+        <li><strong>Interface-Driven Persistence (<code>ISaveInterface</code>):</strong> Decouples save logic from world actors, allowing any actor to serialize its state without hard dependencies or direct class casting.</li>
+        <li><strong>Modular System Structs & Proxy Archives:</strong> Encapsulates player, quest, and inventory states into dedicated structs, using <code>FObjectAndNameAsStringProxyArchive</code> to serialize only variables tagged with <code>UPROPERTY(SaveGame)</code> into compact byte arrays.</li>
+        <li><strong>Automated World State & Destruction Tracking:</strong> Listens for actor destruction events via a central <code>UGameInstanceSubsystem</code> to log unique <code>FGuid</code> entries into a <code>DestroyedActors</code> registry, ensuring level-placed items and objects stay deleted upon reloading.</li>
+        <li><strong>Asynchronous Disk I/O & UI Delegates:</strong> Executes non-blocking async save/load requests via a custom <code>UGameInstanceSubsystem</code> to prevent frame hitches, firing dynamic delegates to notify UI widgets upon completion.</li>
     </ul>
 
-    <h2>3. Data Flow Diagram</h2>
-    <p>Architectural breakdown showing how world components write to the <code>USaveGameInstance</code> binary container during save events:</p>
-    <img src="save-system-architecture.png" alt="Save System Data Flow Diagram">
+    <h2>3. Data Flow Architecture</h2>
+    <p>Architectural breakdown showing how world components write to the <code>UMySaveGame</code> container during save events:</p>
+    <img src="save_system_architecture.png" alt="Save System Data Flow Diagram">
 
-    <h2>4. C++ Code Highlights</h2>
-    <p>Header definition for the core serialization structs and <code>USaveableComponent</code> interface:</p>
-    <img src="save-system-code.png" alt="Carbon C++ Save System Code Snippet">
+    <h2>4. Technical Deep-Dives</h2>
+    <div class="feature-grid">
+        <a href="./subsystem/index.html" class="card">
+            <span class="tag">Core Engine</span>
+            <h3>Subsystem & Data Storage</h3>
+            <p>Async I/O management via UGameInstanceSubsystem, non-blocking disk writes, and USaveGame data structures.</p>
+        </a>
 
-    <div class="feature-card">
-    <h3>Selective Filtering via GameplayTags</h3>
-    <p>
-        Optimizes serialization sweeps by checking <code>FGameplayTag</code> containers, skipping transient actors during save sweeps.
-    </p>
+        <a href="./interface-guid/index.html" class="card">
+            <span class="tag">Architecture</span>
+            <h3>ISaveInterface & GUID Persistence</h3>
+            <p>Decoupled actor serialization using FObjectAndNameAsStringProxyArchive and stable level GUID assignment.</p>
+        </a>
 
-    <div style="position: relative; margin-top: 15px;">
+        <a href="../inventory-system/save-system/index.html" class="card">
+            <span class="tag">Inventory</span>
+            <h3>Spatial Inventory Serialization</h3>
+            <p>Lightweight FInv_ItemManifest structs, multi-grid mapping, and anchor-tile deduplication.</p>
+        </a>
+    </div>
+
+    <h2>5. Transient Filtering via Gameplay Tags</h2>
+    <p>Demonstration of filtering out actors tagged with <code>Save.Ignore</code> to prevent serializing temporary or procedural entities:</p>
+
+    <div class="code-container">
         <button class="copy-btn" onclick="copyCode(this)">Copy</button>
         <pre><code class="language-cpp">// SaveSubsystem.cpp
-// Check if the actor should be ignored during save serialization
-if (Actor->Implements<USaveableInterface>())
+// Verify if the actor should be ignored during save serialization
+if (Actor->Implements<USaveInterface>())
 {
-    const FGameplayTagContainer TagContainer = ISaveableInterface::Execute_GetSaveStateTags(Actor);
+    const FGameplayTagContainer TagContainer = ISaveInterface::Execute_GetSaveStateTags(Actor);
     if (TagContainer.HasTagExact(FGameplayTag::RequestGameplayTag(FName("Save.Ignore"))))
     {
         return; // Skip transient actor
     }
-}
-        </code></pre>
+}</code></pre>
+    </div>
+
+    <div class="contact-box">
+        <div>
+            <span style="color: #94a3b8; font-size: 0.9rem; display: block;">Get in Touch / Inquiry:</span>
+            <a href="mailto:myemail@email.com" style="color: #38bdf8; font-weight: bold; text-decoration: none; font-size: 1.1rem;">myemail@email.com</a>
         </div>
     </div>
 
@@ -65,12 +84,12 @@ if (Actor->Implements<USaveableInterface>())
         function copyCode(button) {
             const codeContainer = button.nextElementSibling;
             const codeBlock = codeContainer.querySelector('code');
-            
+
             navigator.clipboard.writeText(codeBlock.innerText).then(() => {
                 const originalText = button.innerText;
                 button.innerText = 'Copied!';
                 button.style.background = '#0284c7';
-                
+
                 setTimeout(() => {
                     button.innerText = originalText;
                     button.style.background = '#334155';
@@ -78,15 +97,5 @@ if (Actor->Implements<USaveableInterface>())
             });
         }
     </script>
-
-    <div class="contact-box" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
-        <div>
-            <span style="color: #94a3b8; font-size: 0.9rem; display: block;">Get in Touch / Inquiry:</span>
-            <a href="mailto:myemail@email.com" style="color: #38bdf8; font-weight: bold; text-decoration: none; font-size: 1.1rem;">myemail@email.com</a>
-        </div>
-        <div>
-            </div>
-    </div>
-
 </body>
 </html>
