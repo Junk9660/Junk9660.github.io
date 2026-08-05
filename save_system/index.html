@@ -52,22 +52,37 @@
         </a>
     </div>
 
-    <h2>5. Transient Filtering via Gameplay Tags</h2>
-    <p>Demonstration of filtering out actors tagged with <code>Save.Ignore</code> to prevent serializing temporary or procedural entities:</p>
+    <h2>5. Advanced System Features</h2>
 
-    <div class="code-container">
-        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
-        <pre><code class="language-cpp">// SaveSubsystem.cpp
-// Verify if the actor should be ignored during save serialization
-if (Actor->Implements<USaveInterface>())
-{
-    const FGameplayTagContainer TagContainer = ISaveInterface::Execute_GetSaveStateTags(Actor);
-    if (TagContainer.HasTagExact(FGameplayTag::RequestGameplayTag(FName("Save.Ignore"))))
+    <details class="feature-details">
+        <summary><strong>Gameplay Tag Filtering</strong> — Skip transient & dynamic actors during sweeps</summary>
+        <div class="details-content">
+            <p>
+                Prevents serializing dynamic or transient actors (like temporary particle spawners, projectiled hazards, or procedural props) by querying tag containers before executing memory sweeps.
+            </p>
+            <div class="code-container">
+                <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                <pre><code class="language-cpp">// SaveSubsystem.cpp
+    if (Actor->Implements<USaveInterface>())
     {
-        return; // Skip transient actor
-    }
-}</code></pre>
-    </div>
+        const FGameplayTagContainer TagContainer = ISaveInterface::Execute_GetSaveStateTags(Actor);
+        if (TagContainer.HasTagExact(FGameplayTag::RequestGameplayTag(FName("Save.Ignore"))))
+        {
+            return; // Skip transient actor
+        }
+    }</code></pre>
+            </div>
+        </div>
+    </details>
+
+    <details class="feature-details">
+        <summary><strong>Auto-Save Triggers & Checkpoints</strong> — Async background saving via triggers</summary>
+        <div class="details-content">
+            <p>
+                Integrates seamless checkpoint saves using volume triggers and timed component events. The <code>SaveSubsystem</code> processes these auto-save calls asynchronously on a background thread to prevent gameplay hitches during critical transitions.
+            </p>
+        </div>
+    </details>
 
     <div class="contact-box">
         <div>
