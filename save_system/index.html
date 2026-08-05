@@ -39,15 +39,21 @@
             <p>Async I/O management via UGameInstanceSubsystem, non-blocking disk writes, and USaveGame data structures.</p>
         </a>
 
-        <a href="./interface-guid/index.html" class="card">
+        <a href="./interface_guid/index.html" class="card">
             <span class="tag">Architecture</span>
             <h3>ISaveInterface & GUID Persistence</h3>
             <p>Decoupled actor serialization using FObjectAndNameAsStringProxyArchive and stable level GUID assignment.</p>
         </a>
 
-        <a href="../inventory-system/save-system/index.html" class="card">
+        <a href="./ui_integration/index.html" class="card">
+        <span class="tag">Frontend / UI</span>
+        <h3>UI & Subsystem Integration</h3>
+        <p>Deterministic save slot binding, async progress callbacks, and decoupling UI widgets from backend disk operations.</p>
+        </a>
+
+        <a href="../inventory_system/save_system/index.html" class="card">
             <span class="tag">Inventory</span>
-            <h3>Spatial Inventory Serialization</h3>
+            <h3>Spatial Inventory Integration</h3>
             <p>Lightweight FInv_ItemManifest structs, multi-grid mapping, and anchor-tile deduplication.</p>
         </a>
     </div>
@@ -78,7 +84,7 @@
     <details class="feature-details">
         <summary><strong>Auto-Save Triggers & Checkpoints</strong> — Async background saving via triggers</summary>
         <div class="details-content">
-            <p>
+            <p> //Integrate info about delay between 2 saves, so it doesn't create auto save every 5 seconds
                 Integrates seamless checkpoint saves using volume triggers and timed component events. The <code>SaveSubsystem</code> processes these auto-save calls asynchronously on a background thread to prevent gameplay hitches during critical transitions.
             </p>
         </div>
