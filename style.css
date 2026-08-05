@@ -130,6 +130,59 @@ a {
 }
 
 /* ==========================================
+   DETAILS / SUMMARY DROPDOWNS
+   ========================================== */
+.feature-details {
+    background: #1e293b;
+    border: 1px solid #334155;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    overflow: hidden;
+    transition: border-color 0.2s;
+}
+
+.feature-details[open] {
+    border-color: #38bdf8;
+}
+
+.feature-details summary {
+    padding: 15px 20px;
+    font-size: 1.05rem;
+    color: #f8fafc;
+    cursor: pointer;
+    user-select: none;
+    list-style: none; /* Removes default arrow in some browsers */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.feature-details summary::-webkit-details-marker {
+    display: none; /* Removes default arrow in Chrome/Safari */
+}
+
+.feature-details summary::after {
+    content: "＋";
+    color: #38bdf8;
+    font-weight: bold;
+    font-size: 1.2rem;
+}
+
+.feature-details[open] summary::after {
+    content: "－";
+}
+
+.feature-details summary:hover {
+    background: #273549;
+}
+
+.details-content {
+    padding: 0 20px 20px 20px;
+    border-top: 1px solid #334155;
+    background: #0f172a;
+}
+
+/* ==========================================
    MEDIA & VIDEO CONTAINERS
    ========================================== */
 .video-container { 
