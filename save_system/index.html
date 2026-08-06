@@ -66,15 +66,32 @@
             <p> Prevents saving if the player is in defined states, by quering <code>FGameplayTag</code> (player jumping, in combat, ...)</p>
             <div class="code-container">
                 <button class="copy-btn" onclick="copyCode(this)">Copy</button>
-                <pre><code class="language-cpp">// SaveSubsystem.cpp
-if (Actor->Implements<USaveInterface>())
+                <pre><code class="language-cpp">// PlayerController On Jump
+ActiveTags.AddTag(SaveTags::SaveBlockingJumping);
+//SaveSubsystem.cpp
+USaveSubsystem::USaveSubsystem()
 {
-    const FGameplayTagContainer TagContainer = ISaveInterface::Execute_GetSaveStateTags(Actor);
-    if (TagContainer.HasTagExact(FGameplayTag::RequestGameplayTag(FName("Save.Ignore"))))
-    {
-        return; // Skip transient actor
-    }
-}</code></pre>
+	BlockingSaveTag.AddTag(SaveTags::SaveBlockingJumping);
+	BlockingSaveTag.AddTag(SaveTags::SaveBlockingCombat);
+	BlockingSaveTag.AddTag(SaveTags::SaveBlockingSaving);
+}
+bool USaveSubsystem::CannotSave() const
+{
+	if (SavingTag.MatchesTagExact(SaveTags::SaveBlockingSaving))
+	{
+		UE_LOG(LogSaveInterface, Warning, TEXT("CanSave blocking saving"));
+		return false;
+	}
+	APlayerController* PC = UGameplayStatics::GetPlayerController(GetWorld(), 0);
+	if (ISaveInterface::Execute_HasAnyMatchingGameplayTags(PC, BlockingSaveTag))
+	//if (ISaveInterface::Execute_HasMatchingGameplayTag(PC, SaveTags::SaveBlockingJumping))
+	{
+		UE_LOG(LogSaveInterface, Log, TEXT("CanSave has tag"));
+		return true;
+	}
+	return false;
+}
+</code></pre>
             </div>
         </div>
     </details>
@@ -84,6 +101,37 @@ if (Actor->Implements<USaveInterface>())
         <div class="details-content">
             <p>Integrates seamless checkpoint saves on any actor, by using a <code>SaveComponent</code>.
             The <code>SaveSubsystem</code> processes these auto-save calls asynchronously, while preventing multiple auto save in a short interval.</p>
+            <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                <pre><code class="language-cpp">//SaveComponent.h
+UPROPERTY()
+	float LastAutoSaveTime = -BIG_NUMBER;
+
+	UPROPERTY(EditAnywhere, Category = "AutoSave")
+	float AutoSaveInterval = 30.f;
+
+//SaveComponent.cpp
+void USaveComponent::TriggerAutoSave()
+{
+	UWorld* World = GetWorld();
+	if (!World) return;
+
+	const float CurrentTime = World->GetTimeSeconds();
+	if (CurrentTime - LastAutoSaveTime < AutoSaveInterval)
+	{
+		return;// last auto save from this actor was too soon
+	}
+	LastAutoSaveTime = CurrentTime;
+
+	UGameInstance* GI = World->GetGameInstance();
+	if (!GI) return;
+
+	SaveSubsystem = GI->GetSubsystem<USaveSubsystem>();
+	if (SaveSubsystem)
+	{
+		SaveSubsystem->SaveWorldAsync("", ESaveType::AutoSave);
+	}
+}
+                </code></pre>
         </div>
     </details>
 
