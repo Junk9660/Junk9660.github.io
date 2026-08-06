@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UE5 C++ Grid Inventory - Save Integration</title>
+    <link rel="stylesheet" href="../../style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-okaidia.min.css" rel="stylesheet" />
+</head>
+<body>
+
+    <a href="../" class="back-link">← Back to Save System</a>
+
+    <h1>UE5 C++ Subsystem & Data Storage</h1>
+    <p><strong>Engine Version:</strong> Unreal Engine 5.6 | <strong>Language:</strong> C++</p>
+
+    <div class="context-box">
+    <h3 style="margin-top:0;">Architecture Context & Baseline</h3>
+    <p>
+        Async I/O management via UGameInstanceSubsystem for non blocking operation and USaveGame data structures.
+    </p>
+</div>
+
+    <h2>2. Key Technical Features</h2>
+    <ul>
+        <li><strong>:</strong> Allow clear identification of each actor in the level by using <code>FGuid SaveActorID</code>.</li>
+        <li><strong>Clear Data Structure:</strong> Structured SaveGame object to easily identify each save data.</li>
+        <li><strong>:</strong> Use of <code>EndPlay()</code> to register the SaveActor ID in an array of destroyed actors, preventing loading them.</li>
+        <li><strong>:</strong> Use of <code>FObjectAndNameAsStringProxyArchive</code> to serialize only variables tagged with <code>UPROPERTY(SaveGame)</code>, removing manual handling.</li>
+    </ul>
+
+    <h2>3. Technical Deep-Dives</h2>
+    <details class="feature-details">
+        <summary><strong>GUID Identification</strong> — GUID creation, retrieval and restore</summary>
+        <div class="details-content">
+            <p> Use of GUID to identify each saveable actor in the world.</p>
+            <div class="code-container">
+                <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                <pre><code class="language-cpp">//Actor Constructor
+SaveActorID = FGuid::NewGuid();
+bIsSpawnedAtRunTime = false;
+
+//Actor BeginPlay
+if (!SaveActorID.IsValid())
+{
+   SaveActorID = FGuid::NewGuid();
+}
+void ABaseActor::PostActorCreated()
+{
+	//Called when the actor is spawned using UWorld::SpawnActor
+	Super::PostActorCreated();
+	bIsSpawnedAtRunTime = true;
+}
+
+void ABaseActor::PostLoad()
+{
+	//Called when actor is placed in the level editor
+	Super::PostLoad();
+	bIsSpawnedAtRunTime = false;
+}
+//Handle actor duplication in the editor, to create a new GUID
+#if WITH_EDITOR
+void ABaseActor::PostDuplicate(bool bDuplicateForPIE)
+{
+	Super::PostDuplicate(bDuplicateForPIE);
+	if (!bDuplicateForPIE)
+	{
+		SaveActorID = FGuid::NewGuid();
+	}
+}
+#endif
+//Interface calls
+FGuid ABaseActor::GetActorId_Implementation()
+{
+	return SaveActorID;
+}
+
+void ABaseActor::SetActorId_Implementation(const FGuid& NewID)
+{
+	if (SaveActorID.IsValid())
+	{
+		SaveActorID.Invalidate();
+	}
+	SaveActorID = NewID;
+}
+</code></pre>
+            </div>
+        </div>
+    </details>
+
+    <details class="feature-details">
+        <summary><strong>Interface Driven</strong> — Decoupled system with interface</summary>
+        <div class="details-content">
+            <p> Use of Interface to retrieve and set back data without hard casting.</p>
+            <div class="code-container">
+                <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                <pre><code class="language-cpp">
+FActorSaveData ABaseActor::GetSaveData_Implementation()
+{
+	FActorSaveData ActorSaveData;
+	ActorSaveData.Transform = GetTransform();
+	ActorSaveData.ActorClass = this->GetClass();
+	ActorSaveData.bIsRuntimeSpawned = bIsSpawnedAtRunTime;
+	UInv_LootComponent* LootComp = FindComponentByClass<UInv_LootComponent>();
+	if (LootComp)
+	{
+		ActorSaveData.FInv_LootData = LootComp->GetInventoryList();
+	}
+
+	return ActorSaveData;
+}
+void ABaseActor::OnLoadGame_Implementation(const UMySaveGame* SaveDataObject)
+{
+	UInv_LootComponent* LootComp = FindComponentByClass<UInv_LootComponent>();
+	if (LootComp)
+	{
+		FActorSaveData ActorSaveData = SaveDataObject->SavedActorMap.FindRef(SaveActorID);
+		LootComp->SetInventoryList(ActorSaveData.FInv_LootData);
+	}
+}
+</code></pre>
+            </div>
+        </div>
+    </details>
+
+    <details class="feature-details">
+        <summary><strong>Destroyed Actors Tracking</strong> — Prevent loading destroyed actors</summary>
+        <div class="details-content">
+            <p> SaveSubsystem tracks destroyed actors within an <code>TArray<FGuid> DestroyedActorGuids;</code>.</p>
+            <div class="code-container">
+                <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                <pre><code class="language-cpp">//SaveSusbystem.cpp
+//Called by Actor's EndPlay()
+void USaveSubsystem::RegisterDestroyedActor(const FGuid& ActorGuid)
+{
+	if (!CurrentSave) return;
+	CurrentSave->WorldState.DestroyedActorGuids.AddUnique(ActorGuid);
+	UE_LOG(LogSaveInterface, Warning, TEXT("Actor with following ID %s has been destroyed"), *ActorGuid.ToString())
+}
+                </code></pre></div>
+            <div class="code-container">
+                <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                <pre><code class="language-cpp">
+//In Restore Actors function in SaveSubsystem.cpp
+FGuid ActorGuid = ISaveInterface::Execute_GetActorId(Actor);
+
+if (LoadedSave->WorldState.DestroyedActorGuids.Contains(ActorGuid))
+{
+    Actor->Destroy();
+    continue;
+}
+    </code></pre>
+            </div>
+        </div>
+    </details>
+
+    <details class="feature-details">
+        <summary><strong>Serialization</strong> — Take advantage of serialization and SaveGame tag</summary>
+        <div class="details-content">
+            <p> Easy saving and loading variables, without the need to add them manually in the <code>SaveGame Object</code>.</p>
+            <div class="code-container">
+                <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                <pre><code class="language-cpp">//MySaveGame UObject
+USTRUCT(BlueprintType)
+struct FActorSaveData
+{
+	GENERATED_BODY()
+
+	UPROPERTY(BlueprintReadWrite, Category = "SaveSystem | Actor")
+	FGuid PersistentID;
+	UPROPERTY(BlueprintReadWrite, Category = "SaveSystem | Actor")
+	FTransform Transform;
+	UPROPERTY(BlueprintReadWrite, Category = "SaveSystem | Actor")
+	TObjectPtr<UClass> ActorClass;
+	UPROPERTY(BlueprintReadWrite, Category = "SaveSystem | Actor")
+	TArray<uint8> SerializedData;
+}
+                </code></pre></div>
+            <div class="code-container">
+            <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+<pre><code class="language-cpp">
+//SaveSubsystem.cpp
+//Save
+FActorSaveData ActorSaveData = ISaveInterface::Execute_GetSaveData(Actor);
+
+FMemoryWriter MemWriter(ActorSaveData.SerializedData);
+FObjectAndNameAsStringProxyArchive Ar(MemWriter, true);
+Ar.ArIsSaveGame = true;
+Actor->Serialize(Ar);
+
+CurrentSave->SavedActorMap.Add(SAI, ActorSaveData);
+</code></pre></div>
+            <div class="code-container">
+        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+<pre><code class="language-cpp">
+//Restore
+FActorSaveData SAD = SaveableActorData[ActorGuid];
+Actor->SetActorTransform(SAD.Transform);
+
+FMemoryReader MemReader(SAD.SerializedData);
+FObjectAndNameAsStringProxyArchive Ar(MemReader, true);
+Ar.ArIsSaveGame = true;
+Actor->Serialize(Ar);
+    </code></pre>
+            </div>
+        </div>
+    </details>
+
+    <h2>4. Code Repository</h2>
+    <a href="https://github.com/Junk9660/UE5_InventoryPlugin" class="btn" target="_blank">View Repository on GitHub</a>
+
+    <div class="contact-box">
+        <div>
+            <span style="color: #94a3b8; font-size: 0.9rem; display: block;">Get in Touch / Inquiry:</span>
+            <a href="mailto:myemail@email.com" style="color: #38bdf8; font-weight: bold; text-decoration: none; font-size: 1.1rem;">myemail@email.com</a>
+        </div>
+    </div>
+
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-c.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-cpp.min.js"></script>
+
+    <script>
+        function copyCode(button) {
+            const codeContainer = button.nextElementSibling;
+            const codeBlock = codeContainer.querySelector('code');
+
+            navigator.clipboard.writeText(codeBlock.innerText).then(() => {
+                const originalText = button.innerText;
+                button.innerText = 'Copied!';
+                button.style.background = '#0284c7';
+
+                setTimeout(() => {
+                    button.innerText = originalText;
+                    button.style.background = '#334155';
+                }, 2000);
+            });
+        }
+    </script>
+
+</body>
+</html>
