@@ -84,7 +84,6 @@ bool USaveSubsystem::CannotSave() const
 	}
 	APlayerController* PC = UGameplayStatics::GetPlayerController(GetWorld(), 0);
 	if (ISaveInterface::Execute_HasAnyMatchingGameplayTags(PC, BlockingSaveTag))
-	//if (ISaveInterface::Execute_HasMatchingGameplayTag(PC, SaveTags::SaveBlockingJumping))
 	{
 		UE_LOG(LogSaveInterface, Log, TEXT("CanSave has tag"));
 		return true;
