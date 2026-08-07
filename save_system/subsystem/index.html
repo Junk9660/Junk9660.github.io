@@ -17,16 +17,16 @@
     <div class="context-box">
     <h3 style="margin-top:0;">Architecture Context & Baseline</h3>
     <p>
-        Async I/O management via UGameInstanceSubsystem for non blocking operation and USaveGame data structures.
+        Centralizes save state management via a custom <code>UGameInstanceSubsystem</code>. The subsystem orchestrates non-blocking asynchronous disk operations (<code>AsyncSaveGameToSlot</code> / <code>AsyncLoadGameFromSlot</code>), delegates game state serialization across world actors, and manages modular data containers stored inside a custom <code>UMySaveGame</code> binary wrapper.
     </p>
-</div>
+    </div>
 
     <h2>2. Key Technical Features</h2>
     <ul>
-        <li><strong>:</strong> Allow clear identification of each actor in the level by using <code>FGuid SaveActorID</code>.</li>
-        <li><strong>Clear Data Structure:</strong> Structured SaveGame object to easily identify each save data.</li>
-        <li><strong>:</strong> Use of <code>EndPlay()</code> to register the SaveActor ID in an array of destroyed actors, preventing loading them.</li>
-        <li><strong>:</strong> Use of <code>FObjectAndNameAsStringProxyArchive</code> to serialize only variables tagged with <code>UPROPERTY(SaveGame)</code>, removing manual handling.</li>
+        <li><strong>Subsystem-Driven Async I/O:</strong> Leverages <code>UGameInstanceSubsystem</code> to execute non-blocking disk reads and writes via dynamic delegates (<code>FAsyncSaveGameToSlotDelegate</code>), preventing main-thread hitches during heavy file transfers.</li>
+        <li><strong>Modular Struct Container Architecture:</strong> Encapsulates player state, actor states, inventory, quest progress, and world flags into domain-specific structs inside <code>UMySaveGame</code>, maintaining a clean data hierarchy.</li>
+        <li><strong>Automated Destruction Tracking:</strong> Registers actor destructions to a persistent <code>DestroyedActorGuids</code> array within <code>FWorldStateSaveData</code>, ensuring destroyed world actors are purged during actor restoration.</li>
+        <li><strong>Proxy Archive Serialization:</strong> Populates the <code>SerializedData</code> byte array within <code>FActorSaveData</code> using <code>FObjectAndNameAsStringProxyArchive</code>, serializing only properties marked with <code>UPROPERTY(SaveGame)</code>.</li>
     </ul>
 
     <h2>3. Technical Deep-Dives</h2>
@@ -140,8 +140,7 @@ void USaveSubsystem::RegisterDestroyedActor(const FGuid& ActorGuid)
                 </code></pre></div>
             <div class="code-container">
                 <button class="copy-btn" onclick="copyCode(this)">Copy</button>
-                <pre><code class="language-cpp">
-//In Restore Actors function in SaveSubsystem.cpp
+                <pre><code class="language-cpp">//In Restore Actors function in SaveSubsystem.cpp
 FGuid ActorGuid = ISaveInterface::Execute_GetActorId(Actor);
 
 if (LoadedSave->WorldState.DestroyedActorGuids.Contains(ActorGuid))
@@ -178,8 +177,7 @@ struct FActorSaveData
                 </code></pre></div>
             <div class="code-container">
             <button class="copy-btn" onclick="copyCode(this)">Copy</button>
-<pre><code class="language-cpp">
-//SaveSubsystem.cpp
+<pre><code class="language-cpp">//SaveSubsystem.cpp
 //Save
 FActorSaveData ActorSaveData = ISaveInterface::Execute_GetSaveData(Actor);
 
@@ -192,7 +190,7 @@ CurrentSave->SavedActorMap.Add(SAI, ActorSaveData);
 </code></pre></div>
             <div class="code-container">
         <button class="copy-btn" onclick="copyCode(this)">Copy</button>
-<pre><code class="language-cpp">
+<pre><code class="language-cpp">//SaveSubsystem.cpp
 //Restore
 FActorSaveData SAD = SaveableActorData[ActorGuid];
 Actor->SetActorTransform(SAD.Transform);
