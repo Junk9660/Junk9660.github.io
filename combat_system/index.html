@@ -90,10 +90,10 @@ void UCombatComponent::OnUnequipWeapon(AInv_EquipActor* EquippedActor)
     </div>
     </div>
 
-        <div class="feature-card">
-    <h3>Inventory Plugin Delegate</h3>
+    <div class="feature-card">
+    <h3>Tracing with weapon</h3>
     <p>
-        Took advantage of Delegates to send information from the Inventory Plugin to the Combat Component.
+        Trace when firing with custom trace channel and custom parameters.
     </p>
     <div class="code-container">
         <button class="copy-btn" onclick="copyCode(this)">Copy</button>
@@ -144,6 +144,53 @@ void ABaseWeapon::WeaponTrace(FHitResult& OutHit, float TraceLengthWeapon)
             }
         }
 	}
+    </code></pre>
+    </div>
+    </div>
+
+    <div class="feature-card">
+    <h3>Interfaces</h3>
+    <p>
+        Use of Player Interface and NPC Interface to get and send information to Pawns
+    </p>
+    <div class="code-container">
+        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        <pre><code class="language-cpp">// NPCInterface
+UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+ENPCType GetCurrentNPCType();
+
+UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+bool IsNPCDead() const;
+
+UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+bool DoDamage(float DamageAmount, AActor* DamageInstigator);
+
+//Usage in Combat Component
+const bool bHit = IsValid(Hit.GetActor()) && Hit.GetActor()->Implements<UNPCInterface>();
+bool bLethal = false;
+if (bHit)
+{
+    if (INPCInterface::Execute_IsNPCDead(Hit.GetActor())) return;
+    bLethal = INPCInterface::Execute_DoDamage(Hit.GetActor(), CurrentWeapon->GetDamage() * DamageMultiplier, GetOwner());
+}
+    </code></pre>
+    </div>
+    </div>
+    <p>
+        Receive events notifier from BP to CPP to trigger actions at the right time.
+    </p>
+    <div class="code-container">
+        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        <pre><code class="language-cpp">// PlayerInterface
+//From BP => CPP
+UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+void Notify_ReloadWeapon();
+
+//Player Character.cpp
+void APlayerCharacter::Notify_ReloadWeapon_Implementation()
+{
+	CombatComponent->NotifyReloadWeapon();
+}
     </code></pre>
     </div>
     </div>
