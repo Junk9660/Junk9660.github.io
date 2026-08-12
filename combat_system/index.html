@@ -91,7 +91,7 @@ void UCombatComponent::OnUnequipWeapon(AInv_EquipActor* EquippedActor)
     </div>
 
     <div class="feature-card">
-    <h3>Tracing with weapon</h3>
+    <h3>Tracing from weapon</h3>
     <p>
         Trace when firing with custom trace channel and custom parameters.
     </p>
@@ -174,7 +174,6 @@ if (bHit)
     bLethal = INPCInterface::Execute_DoDamage(Hit.GetActor(), CurrentWeapon->GetDamage() * DamageMultiplier, GetOwner());
 }
     </code></pre>
-    </div>
     </div>
     <p>
         Receive events notifier from BP to CPP to trigger actions at the right time.
