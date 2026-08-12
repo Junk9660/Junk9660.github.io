@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UE5 C++ Combat System</title>
+    <link rel="stylesheet" href="../style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-okaidia.min.css" rel="stylesheet" />
+</head>
+<body>
+
+    <a href="../" class="back-link">← Back to Main Portfolio</a>
+
+    <h1>UE5 C++ Combat System</h1>
+    <p><strong>Engine Version:</strong> Unreal Engine 5.6 | <strong>Language:</strong> C++ / Blueprints</p>
+
+     <div class="attribution-box">
+        <h3 style="margin-top:0;">Architecture Baseline & Extensions</h3>
+        <p>This system was built upon <strong>Stephen Ulibarri's C++ First-Person Shooter</strong> baseline, with extension to the Inventory System for equip actors.</p>
+    </div>
+
+    <h2>1. Gameplay Video Showcase</h2>
+    <div class="video-container">
+        <iframe src="https://www.youtube.com/embed/6IuBXUOcDo8" allowfullscreen></iframe>
+    </div>
+
+    <h2>2. Technical Architecture</h2>
+    <ul>
+        <li><strong>Interface-Driven Architecture (<code>IPlayerInterface</code> & <code>INPCInterface</code>):</strong> Decoupled interaction between different actors.</li>
+        <li><strong>Dynamic Trace Sweeping:</strong> Utilizes line-traces and sphere-sweeps to continuously evaluate if an eligible target is present and in range.</li>
+        <li><strong>Direct HUD :</strong> Communicates target state directly to the HUD class to render information to the player (weapon equipped, ammo left).</li>
+        <li><strong>Inventory Compatible:</strong> Fully compatible with Inventory System items and GameplayTags.</li>
+    </ul>
+
+    <h2>3. Class & Interface Diagram</h2>
+    <p>Visual overview of how the interaction component communicates with interactive world actors via C++ interfaces.</p>
+    <img src="./combat_architecture.png" alt="Combat System Architecture Diagram">
+
+    <h2>4. Technical Deep-Dives</h2>
+    <div class="feature-card">
+    <h3>Inventory Plugin Delegate</h3>
+    <p>
+        Took advantage of Delegates to send information from the Inventory Plugin to the Combat Component.
+    </p>
+    <div class="code-container">
+        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        <pre><code class="language-cpp">// CombatComponent.cpp
+//BeginPlay
+if (UInv_EquipmentComponent* EquipmentComponent = PC->FindComponentByClass<UInv_EquipmentComponent>())
+{
+    EquipmentComponent->OnEquipWeapon.AddDynamic(this, &ThisClass::OnEquipWeapon);
+    EquipmentComponent->OnUnequipWeapon.AddDynamic(this, &ThisClass::OnUnequipWeapon);
+}
+if (UInv_InventoryComponent* IC = PC->FindComponentByClass<UInv_InventoryComponent>())
+{
+    InventoryComponent = IC;
+    InventoryComponent->OnAmmoPickedUp.AddDynamic(this, &ThisClass::HandleAmmoPickedUp);
+    InventoryComponent->OnAmmoDropped.AddDynamic(this, &ThisClass::HandleAmmoDropped);
+}
+}</code></pre>
+    </div>
+    <div class="code-container">
+    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+    <pre><code class="language-cpp">// CombatComponent.cpp
+void UCombatComponent::OnEquipWeapon(AInv_EquipActor* EquippedActor)
+{
+	if (ABaseWeapon* Weapon = Cast<ABaseWeapon>(EquippedActor))
+	{
+		Inventory.AddUnique(Weapon);
+		int32 AmmoFromInventory = InventoryComponent->AmmoCountInInventory(Weapon->GetAmmoType());
+		if (AmmoFromInventory < 0) AmmoFromInventory = 0;
+		ReserveAmmo.Add(Weapon->WeaponType, AmmoFromInventory);
+	}
+}
+
+void UCombatComponent::OnUnequipWeapon(AInv_EquipActor* EquippedActor)
+{
+	if (ABaseWeapon* Weapon = Cast<ABaseWeapon>(EquippedActor))
+	{
+		Inventory.Remove(Weapon);
+		if (CurrentWeapon == Weapon)
+		{
+			CurrentWeapon = nullptr;
+			bHolstered = true;
+			bIsCurrentWeaponValid = false;
+		}
+	}
+}
+    </code></pre>
+    </div>
+    </div>
+
+        <div class="feature-card">
+    <h3>Inventory Plugin Delegate</h3>
+    <p>
+        Took advantage of Delegates to send information from the Inventory Plugin to the Combat Component.
+    </p>
+    <div class="code-container">
+        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        <pre><code class="language-cpp">// Weapon.cpp
+//WeaponTrace to return what we hit with Line trace
+void ABaseWeapon::WeaponTrace(FHitResult& OutHit, float TraceLengthWeapon)
+{
+	FCollisionQueryParams QueryParams;
+	QueryParams.bReturnPhysicalMaterial = true;
+	QueryParams.AddIgnoredActor(GetOwner());
+
+	FCollisionResponseParams ResponseParams;
+	ResponseParams.CollisionResponse.SetAllChannels(ECR_Ignore);
+	ResponseParams.CollisionResponse.SetResponse(ECC_Pawn, ECR_Block);
+	ResponseParams.CollisionResponse.SetResponse(ECC_WorldStatic, ECR_Block);
+	ResponseParams.CollisionResponse.SetResponse(ECC_WorldDynamic, ECR_Block);
+	ResponseParams.CollisionResponse.SetResponse(ECC_PhysicsBody, ECR_Block);
+
+	ensure(GetInstigator());
+	if(APlayerController* PC = Cast<APlayerController>(GetInstigator()->GetController()); IsValid(PC))
+	{
+		FVector EyesWorldLocation;
+		FRotator EyesWorldRotation;
+		PC->GetActorEyesViewPoint(EyesWorldLocation, EyesWorldRotation);
+		const FVector EyesWorldDirection = UKismetMathLibrary::GetForwardVector(EyesWorldRotation);
+		const FVector Start = EyesWorldLocation;
+		const FVector End = Start + EyesWorldDirection * TraceLengthWeapon;
+
+		const bool bHit = GetWorld()->SweepSingleByChannel(OutHit,
+		Start,
+		End,
+		FQuat::Identity,
+		TraceChannels::ECCWeapon,
+		FCollisionShape::MakeSphere(TraceRadius),
+		QueryParams,
+		ResponseParams);
+
+		if (!bHit)
+		{
+			OutHit.ImpactPoint = End;
+		}
+
+        if(bDebug)
+        {
+            if (bDisplayBoneHit)
+            {
+                GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, FString::Printf(TEXT("Bone hit : %s!"), *OutHit.BoneName.ToString()), false);
+            }
+        }
+	}
+    </code></pre>
+    </div>
+    </div>
+
+    <div class="contact-box">
+        <div>
+            <span style="color: #94a3b8; font-size: 0.9rem; display: block;">Get in Touch / Inquiry:</span>
+            <a href="junk9660@tuta.io" style="color: #38bdf8; font-weight: bold; text-decoration: none; font-size: 1.1rem;">junk9660@tuta.io</a>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-c.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-cpp.min.js"></script>
+
+    <script>
+        function copyCode(button) {
+            const codeContainer = button.nextElementSibling;
+            const codeBlock = codeContainer.querySelector('code');
+
+            navigator.clipboard.writeText(codeBlock.innerText).then(() => {
+                const originalText = button.innerText;
+                button.innerText = 'Copied!';
+                button.style.background = '#0284c7';
+
+                setTimeout(() => {
+                    button.innerText = originalText;
+                    button.style.background = '#334155';
+                }, 2000);
+            });
+        }
+    </script>
+
+</body>
+</html>
