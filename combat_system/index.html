@@ -29,22 +29,25 @@
         <li><strong>Interface-Driven Architecture (<code>IPlayerInterface</code> & <code>INPCInterface</code>):</strong> Decoupled interaction between different actors.</li>
         <li><strong>Dynamic Trace Sweeping:</strong> Utilizes line-traces and sphere-sweeps to continuously evaluate if an eligible target is present and in range.</li>
         <li><strong>Direct HUD :</strong> Communicates target state directly to the HUD class to render information to the player (weapon equipped, ammo left).</li>
-        <li><strong>Inventory Compatible:</strong> Fully compatible with Inventory System items and GameplayTags.</li>
+        <li><strong>Inventory Compatible:</strong> Fully compatible with Inventory System items and GameplayTags. Using delegates to update equipped weapon and ammo.</li>
+        <li><strong>NPC Reusability:</strong> Reuse some functions for NPC, so they can equip and use weapons</li>
+        <li><strong>DamageType:</strong> UDamageType class to handle lethal and non-lethal damage.</li>
     </ul>
 
     <h2>3. Class & Interface Diagram</h2>
-    <p>Visual overview of how the interaction component communicates with interactive world actors via C++ interfaces.</p>
+    <p>Visual overview of how the combat component communicates with the whole system.</p>
     <img src="./combat_architecture.png" alt="Combat System Architecture Diagram">
 
     <h2>4. Technical Deep-Dives</h2>
-    <div class="feature-card">
-    <h3>Inventory Plugin Delegate</h3>
-    <p>
-        Took advantage of Delegates to send information from the Inventory Plugin to the Combat Component.
-    </p>
-    <div class="code-container">
-        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
-        <pre><code class="language-cpp">// CombatComponent.cpp
+    <details class="feature-details">
+        <summary><strong>Inventory Plugin Delegate</strong> - Flawless data from Inventory Plugin</summary>
+        <div class="details-content">
+            <p>
+                Took advantage of Delegates to send information from the Inventory Plugin to the Combat Component.
+            </p>
+            <div class="code-container">
+                <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                <pre><code class="language-cpp">// CombatComponent.cpp
 //BeginPlay
 if (UInv_EquipmentComponent* EquipmentComponent = PC->FindComponentByClass<UInv_EquipmentComponent>())
 {
@@ -57,7 +60,9 @@ if (UInv_InventoryComponent* IC = PC->FindComponentByClass<UInv_InventoryCompone
     InventoryComponent->OnAmmoPickedUp.AddDynamic(this, &ThisClass::HandleAmmoPickedUp);
     InventoryComponent->OnAmmoDropped.AddDynamic(this, &ThisClass::HandleAmmoDropped);
 }
-}</code></pre>
+}
+</code></pre>
+            </div>
     </div>
     <div class="code-container">
     <button class="copy-btn" onclick="copyCode(this)">Copy</button>
@@ -89,17 +94,18 @@ void UCombatComponent::OnUnequipWeapon(AInv_EquipActor* EquippedActor)
     </code></pre>
     </div>
     </div>
-
-    <div class="feature-card">
-    <h3>Tracing from weapon</h3>
-    <p>
-        Trace when firing with custom trace channel and custom parameters.
-    </p>
-    <div class="code-container">
-        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
-        <pre><code class="language-cpp">// Weapon.cpp
+    </details>
+    <details class="feature-details">
+        <summary><strong>Tracing from weapon</strong> - Line trace check</summary>
+        <div class="details-content">
+            <p>
+                Trace when firing with custom trace channel and custom parameters.
+            </p>
+            <div class="code-container">
+                <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                <pre><code class="language-cpp">// Weapon.cpp
 //WeaponTrace to return what we hit with Line trace
-void ABaseWeapon::WeaponTrace(FHitResult& OutHit, float TraceLengthWeapon)
+void ABaseWeapon::WeaponTrace(FHitResult& OutHit)
 {
 	FCollisionQueryParams QueryParams;
 	QueryParams.bReturnPhysicalMaterial = true;
@@ -144,18 +150,19 @@ void ABaseWeapon::WeaponTrace(FHitResult& OutHit, float TraceLengthWeapon)
             }
         }
 	}
-    </code></pre>
-    </div>
-    </div>
-
-    <div class="feature-card">
-    <h3>Interfaces</h3>
-    <p>
-        Use of Player Interface and NPC Interface to get and send information to Pawns
-    </p>
-    <div class="code-container">
-        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
-        <pre><code class="language-cpp">// NPCInterface
+</code></pre>
+            </div>
+        </div>
+    </details>
+    <details class="feature-details">
+        <summary><strong>Interfaces</strong> - Decoupled system</summary>
+        <div class="details-content">
+            <p>
+                Use of Player Interface and NPC Interface to get and send information to Pawns
+            </p>
+            <div class="code-container">
+                <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                <pre><code class="language-cpp">// NPCInterface
 UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
 ENPCType GetCurrentNPCType();
 
@@ -171,16 +178,16 @@ bool bLethal = false;
 if (bHit)
 {
     if (INPCInterface::Execute_IsNPCDead(Hit.GetActor())) return;
-    bLethal = INPCInterface::Execute_DoDamage(Hit.GetActor(), CurrentWeapon->GetDamage() * DamageMultiplier, GetOwner());
+    bLethal = INPCInterface::Execute_DoDamage(Hit.GetActor(), CurrentWeapon->GetDamage() * DamageMultiplier, CurrentWeapon->WeaponDamageType,GetOwner());
 }
-    </code></pre>
-    </div>
-    <p>
-        Receive events notifier from BP to CPP to trigger actions at the right time.
-    </p>
-    <div class="code-container">
-        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
-        <pre><code class="language-cpp">// PlayerInterface
+</code></pre>
+            </div>
+            <p>
+                Receive events notifier from BP to CPP to trigger actions at the right time.
+            </p>
+            <div class="code-container">
+                <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                <pre><code class="language-cpp">// PlayerInterface
 //From BP => CPP
 UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
 void Notify_ReloadWeapon();
@@ -190,9 +197,75 @@ void APlayerCharacter::Notify_ReloadWeapon_Implementation()
 {
 	CombatComponent->NotifyReloadWeapon();
 }
-    </code></pre>
-    </div>
-    </div>
+</code></pre>
+            </div>
+        </div>
+</details>
+    <details class="feature-details">
+        <summary><strong>Damage Type</strong> - Handle different type of damage weapon</summary>
+        <div class="details-content">
+            <p>
+                <code>UDamageType</code> subclass to have lethal and non-lethal damage to actors
+            </p>
+            <div class="code-container">
+                <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                <pre><code class="language-cpp">// A very basic file
+#pragma once
+
+#include "CoreMinimal.h"
+#include "GameFramework/DamageType.h"
+#include "DamageType_NonLethal.generated.h"
+
+/**
+ * UDamageType to apply on weapons, to pass a Non-Lethal information
+ */
+UCLASS()
+class CPLUSPLUSGAME_API UDamageType_NonLethal : public UDamageType
+{
+	GENERATED_BODY()
+};
+</code></pre>
+            </div>
+            <p>
+                Usage on the Weapon class
+            </p>
+            <div class="code-container">
+                <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                <pre><code class="language-cpp">// Weapon.h
+UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "FPS|DamageType")
+TSubclassOf<UDamageType> WeaponDamageType;
+</code></pre>
+            </div>
+            <p>
+                Usage on the NPC class
+            </p>
+            <div class="code-container">
+                <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                <pre><code class="language-cpp">// NPC.cpp
+float ANPCBase::TakeDamage(float Damage, FDamageEvent const& DamageEvent, AController* EventInstigator,
+                           AActor* DamageCauser)
+{
+	Statline->AdjustStat(ECoreStat::CS_Health, 0 - abs(Damage));
+
+	const bool bIsNonLethal = DamageEvent.DamageTypeClass && DamageEvent.DamageTypeClass->IsChildOf(UDamageType_NonLethal::StaticClass());
+	if (IsCharacterDead()) //Staline health = 0
+	{
+		if (bIsNonLethal)
+		{
+			CharacterKnockout();
+		}
+		else
+		{
+			CharacterDeath();
+		}
+
+	}
+	return 0.0;
+}
+</code></pre>
+        </div>
+</details>
+
 
     <div class="contact-box">
         <div>
