@@ -21,7 +21,7 @@
 
     <h2>1. Gameplay Video Showcase</h2>
     <div class="video-container">
-        <iframe src="https://www.youtube.com/embed/YOUR_YOUTUBE_ID" allowfullscreen></iframe>
+        <iframe src="https://www.youtube.com/embed/2GVObiZYsNM" allowfullscreen></iframe>
     </div>
 
     <h2>2. Key Technical Features</h2>
@@ -32,20 +32,79 @@
         <li><strong>UI Delegates:</strong> Execute delegate to update the UI based on active quest, providing real time information.</li>
     </ul>
 
-    <h2>3. System Architecture & Data Flow</h2>
-    <p>Visual overview showing class relations, data streams, or component interaction.</p>
-    <img src="system_architecture.png" alt="System Architecture Diagram">
+<!--    <h2>3. System Architecture & Data Flow</h2>-->
+<!--    <p>Visual overview showing class relations, data streams, or component interaction.</p>-->
+<!--    <img src="system_architecture.png" alt="System Architecture Diagram">-->
 
-    <h2>4. C++ Code Highlights</h2>
-    <p>Key header file declarations or core functions generated via Carbon/Ray.so:</p>
-    <img src="code_snippet.png" alt="Carbon C++ Snippet">
+    <h2>3. Technical "Deep-Dives"</h2>
+    <div class="feature-card">
+        <h3>Load the quests from the DataAsset by using a QuestConfig actor in the level</h3>
+        <div class="code-container">
+            <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+            <pre><code class="language-cpp">//Quest Subsystem.cpp
+void UQuestSubsystem::LoadQuestsFromDataAsset()
+{
+	if (!Quests.IsEmpty()) return;
+	UWorld* World = GetWorld();
+	if (!World)
+	{
+		UE_LOG(LogQuestSystem, Warning, TEXT("QuestSubsystem: No valid world found to find QuestConfigActor."));
+		return;
+	}
+	MapName = World->GetMapName();
+	MapName = World->RemovePIEPrefix(MapName);
+	UE_LOG(LogQuestSystem, Log, TEXT("QuestSubsystem: MapName %s"),
+		*MapName);
+	UE_LOG(LogQuestSystem, Log, TEXT("QuestSubsystem: World valid"));
+	for (TActorIterator<AQuestConfigActor> It(World); It; ++It)
+	{
+		UE_LOG(LogQuestSystem, Log, TEXT("QuestSubsystem: ConfigActor Iterate"));
+		AQuestConfigActor* ConfigActor = *It;
 
-    <h2>5. Blueprint & Designer Exposure</h2>
+		if (ConfigActor && !ConfigActor->QuestDataAsset.IsNull())
+		{
+			UE_LOG(LogQuestSystem, Log, TEXT("QuestSubsystem: Found QuestConfigActor"));
+			LoadedQuestDataAsset = ConfigActor->QuestDataAsset.LoadSynchronous();
+			if (LoadedQuestDataAsset)
+			{
+				UE_LOG(LogQuestSystem, Log, TEXT("QuestSubsystem: QuestDataAsset is loaded"));
+			}
+			break;
+		}
+	}
+	if (!LoadedQuestDataAsset)
+	{
+		UE_LOG(LogQuestSystem, Warning, TEXT("QuestSubsystem: Failed to load QuestDataAsset"));
+		return;
+	}
+
+	//To see if starting only a specific quest
+	for (const FQuestData& QuestInfo : LoadedQuestDataAsset->Quests)
+	{
+		if (QuestInfo.AssociatedMap.Equals(MapName, ESearchCase::IgnoreCase) && QuestInfo.bIsMainQuest)
+		{
+			UQuestObject* NewQuest = NewObject<UQuestObject>(this);
+			NewQuest->InitializeFromData(QuestInfo);
+			Quests.Add(NewQuest);
+			OnQuestStarted.Broadcast(NewQuest);
+		}
+	}
+	UE_LOG(LogQuestSystem, Log, TEXT("QuestSubsystem: Loaded %d quests from data asset"),
+		Quests.Num());
+}</code></pre>
+        </div>
+    </div>
+
+    <h2>4. Blueprint & Designer Exposure</h2>
     <p>Interactive graph showing C++ delegate triggers or UMG bindings:</p>
-    <iframe src="https://blueprintue.com/render/YOUR_BP_ID/" class="bp-embed" scrolling="no"></iframe>
+    <iframe src="https://blueprintue.com/render/e8f84cal/" class="bp-embed" scrolling="no"></iframe>
 
-    <h2>6. Code Repository</h2>
-    <a href="https://github.com/Junk9660/YOUR-REPO-NAME" class="btn" target="_blank">View Repository on GitHub</a>
+    <h2>5. Improvements</h2>
+    <ul>
+        <li><strong>StateTree:</strong> Switch to StateTree for visual quest creation.</li>
+        <li><strong>Generic Tasks:</strong> Use of StateTree Tasks to handle more efficiently objectives (go to, gather, kill)</li>
+        <li><strong>Quest Component:</strong> Use of a component to start, update, complete quests on any actor.</li>
+    </ul>
 
     <div class="contact-box">
         <div>

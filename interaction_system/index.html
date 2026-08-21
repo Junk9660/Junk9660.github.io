@@ -16,7 +16,7 @@
 
     <h2>1. Gameplay Video Showcase</h2>
     <div class="video-container">
-        <iframe src="https://www.youtube.com/embed/ItxxsIKsRcI" allowfullscreen></iframe>
+        <iframe src="https://www.youtube.com/embed/cCvDEPFk1w8" allowfullscreen></iframe>
     </div>
 
     <h2>2. Technical Architecture</h2>
@@ -31,9 +31,55 @@
     <p>Visual overview of how the interaction component communicates with interactive world actors via C++ interfaces.</p>
     <img src="./interaction_architecture.png" alt="Interaction System Architecture Diagram">
 
-    <h2>4. C++ Code Highlights</h2>
-    <p><code>IInteractableInterface.h</code> declaration and interaction check logic:</p>
-    <img src="interaction_interface-code.png" alt="Carbon C++ Interface Snippet">
+    <h2>4. Technical Deep-Dives</h2>
+    <div class="feature-card">
+        <h3>Interaction Interface declaration</h3>
+        <p><code>IInteractableInterface.h</code> declaration and interaction check logic:</p>
+        <div class="code-container">
+        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        <pre><code class="language-cpp">// InteractionInterface.h
+FText GetInteractionText();
+FText GetInteractionText_Implementation() const;
+
+virtual void BeginFocus(AActor* Interactor){};
+virtual void EndFocus();
+virtual void BeginInteract();
+virtual void EndInteract();
+virtual void Interact(AActor* Interactor);
+}</code></pre>
+        </div>
+    </div>
+
+    <div class="feature-card">
+        <h3>Interaction Interface usage</h3>
+        <p><code>IInteractableInterface.h</code> declaration and interaction check logic:</p>
+        <div class="code-container">
+        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        <pre><code class="language-cpp">// InteractionComponent.cpp
+void UInteractionComponent::Interact()
+{
+	FTimerManager& TimerManager = GetWorld()->GetTimerManager();
+	TimerManager.ClearTimer(TimerHandleInteraction);
+	if (InteractionActor == nullptr)
+	{
+		UE_LOG(LogInteractionInterface, Error, TEXT("UInteractionComponent::Interact - InteractionActor nullptr"));
+		return;
+	}
+	IInteractionInterface* InteractionInterfaceActor = Cast<IInteractionInterface>(InteractionActor);
+	if (InteractionInterfaceActor == nullptr)
+	{
+		UE_LOG(LogInteractionInterface, Error, TEXT("APlayerCharacter::Interact - Interaction Actor is null"));
+		return;
+	}
+	InteractionHud->HideInteractionWidget();
+	if (IsValid(TargetInteractable.GetObject()))
+	{
+		const APlayerController* PC = Cast<APlayerController>(GetOwner());
+		TargetInteractable->Interact(PC->GetPawn());
+	}
+}</code></pre>
+        </div>
+    </div>
 
     <h2>5. Blueprint & UI Integration</h2>
     <p>Interactive graph showing how UMG widgets listen to C++ delegates for prompt displays:</p>

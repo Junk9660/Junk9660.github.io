@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>UE5 C++ Save System - Subsystem & Data Storage</title>
+    <title>UE5 C++ Save System - UI & Subsystem Integraion</title>
     <link rel="stylesheet" href="../../style.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-okaidia.min.css" rel="stylesheet" />
 </head>
@@ -11,13 +11,13 @@
 
     <a href="../" class="back-link">← Back to Save System</a>
 
-    <h1>UE5 C++ Subsystem & Data Storage</h1>
-    <p><strong>Engine Version:</strong> Unreal Engine 5.6 | <strong>Language:</strong> C++</p>
+    <h1>UE5 C++ UI & Subsystem Integraion</h1>
+    <p><strong>Engine Version:</strong> Unreal Engine 5.8 | <strong>Language:</strong> C++ / BP</p>
 
     <div class="context-box">
     <h3 style="margin-top:0;">Architecture Context & Baseline</h3>
     <p>
-        Centralizes save state management via a custom <code>UGameInstanceSubsystem</code>. The subsystem orchestrates non-blocking asynchronous disk operations (<code>AsyncSaveGameToSlot</code> / <code>AsyncLoadGameFromSlot</code>), delegates game state serialization across world actors, and manages modular data containers stored inside a custom <code>UMySaveGame</code> binary wrapper.
+        User interface bound to the Subsystem delegate to provide to the player the possibility to save and load his progression
     </p>
     </div>
 
@@ -153,56 +153,9 @@ if (LoadedSave->WorldState.DestroyedActorGuids.Contains(ActorGuid))
         </div>
     </details>
 
-    <details class="feature-details">
-        <summary><strong>Serialization</strong> — Take advantage of serialization and SaveGame tag</summary>
-        <div class="details-content">
-            <p> Easy saving and loading variables, without the need to add them manually in the <code>SaveGame Object</code>.</p>
-            <div class="code-container">
-                <button class="copy-btn" onclick="copyCode(this)">Copy</button>
-                <pre><code class="language-cpp">//MySaveGame UObject
-USTRUCT(BlueprintType)
-struct FActorSaveData
-{
-	GENERATED_BODY()
-
-	UPROPERTY(BlueprintReadWrite, Category = "SaveSystem | Actor")
-	FGuid PersistentID;
-	UPROPERTY(BlueprintReadWrite, Category = "SaveSystem | Actor")
-	FTransform Transform;
-	UPROPERTY(BlueprintReadWrite, Category = "SaveSystem | Actor")
-	TObjectPtr<UClass> ActorClass;
-	UPROPERTY(BlueprintReadWrite, Category = "SaveSystem | Actor")
-	TArray<uint8> SerializedData;
-}
-                </code></pre></div>
-            <div class="code-container">
-            <button class="copy-btn" onclick="copyCode(this)">Copy</button>
-<pre><code class="language-cpp">//SaveSubsystem.cpp
-//Save
-FActorSaveData ActorSaveData = ISaveInterface::Execute_GetSaveData(Actor);
-
-FMemoryWriter MemWriter(ActorSaveData.SerializedData);
-FObjectAndNameAsStringProxyArchive Ar(MemWriter, true);
-Ar.ArIsSaveGame = true;
-Actor->Serialize(Ar);
-
-CurrentSave->SavedActorMap.Add(SAI, ActorSaveData);
-</code></pre></div>
-            <div class="code-container">
-        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
-<pre><code class="language-cpp">//SaveSubsystem.cpp
-//Restore
-FActorSaveData SAD = SaveableActorData[ActorGuid];
-Actor->SetActorTransform(SAD.Transform);
-
-FMemoryReader MemReader(SAD.SerializedData);
-FObjectAndNameAsStringProxyArchive Ar(MemReader, true);
-Ar.ArIsSaveGame = true;
-Actor->Serialize(Ar);
-    </code></pre>
-            </div>
-        </div>
-    </details>
+    <h2>5. Blueprint & UI Integration</h2>
+    <p>Save function in Blueprint:</p>
+    <iframe src="https://blueprintue.com/render/-yv2u-d9/" class="bp-embed" scrolling="no"></iframe>
 
     <div class="contact-box">
         <div>

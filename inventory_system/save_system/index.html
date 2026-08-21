@@ -24,7 +24,7 @@
 
     <h2>1. Gameplay Video Showcase</h2>
     <div class="video-container">
-        <iframe src="https://www.youtube.com/embed/YOUR_YOUTUBE_ID" allowfullscreen></iframe>
+        <iframe src="https://www.youtube.com/embed/mC7QFbbuJjc" allowfullscreen></iframe>
     </div>
 
     <h2>2. Key Technical Features</h2>
@@ -36,15 +36,127 @@
         <li><strong>Code reusability:</strong> Reused most logic and code from the original inventory system.</li>
     </ul>
 
-    <h2>3. System Architecture & Data Flow</h2>
-    <p>Visual overview showing class relations, data streams, or component interaction.</p>
-    <img src="inv_save_architecture.png" alt="System Architecture Diagram">
+<!--    <h2>3. System Architecture & Data Flow</h2>-->
+<!--    <p>Visual overview showing class relations, data streams, or component interaction.</p>-->
+<!--    <img src="inv_save_architecture.png" alt="System Architecture Diagram">-->
 
-    <h2>4. C++ Code Highlights</h2>
-    <p>Key header file declarations or core functions generated via Carbon/Ray.so:</p>
-    <img src="code-snippet.png" alt="Carbon C++ Snippet">
+    <h2>3. Technical Deep-Dives</h2>
+    <div class="feature-card">
+        <h3>Struct file for inventory information</h3>
+        <div class="code-container">
+            <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+            <pre><code class="language-cpp">//Inv_SaveTypes.h
+USTRUCT()
+struct FInv_SavedItemEntry
+{
+	GENERATED_BODY()
 
-    <h2>5. Code Repository</h2>
+	UPROPERTY()
+	int32 UpperLeftIndex = INDEX_NONE;
+
+	UPROPERTY()
+	int32 StackCount = 0;
+
+	UPROPERTY()
+	FInv_ItemManifest ItemManifest;
+
+};
+
+USTRUCT()
+struct FInv_SavedEquippedItem
+{
+	GENERATED_BODY()
+
+	UPROPERTY()
+	int32 Index = INDEX_NONE;
+
+	UPROPERTY()
+	FInv_ItemManifest ItemManifest;
+};
+
+USTRUCT(BlueprintType)
+struct FInventorySaveData
+{
+	GENERATED_BODY()
+
+	//Inventory dimension
+	UPROPERTY()
+	FIntPoint InventorySize = FIntPoint::ZeroValue;
+
+	//Slot data
+	UPROPERTY()
+	TArray<FInv_SavedItemEntry> SavedItems;
+
+	UPROPERTY()
+	TArray<FInv_SavedEquippedItem> EquippedItems;
+};</code></pre>
+        </div>
+
+    </div>
+    <div class="feature-card">
+        <h3>Implementation on save/load function in InventoryGrid.cpp</h3>
+        <div class="code-container">
+            <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+            <pre><code class="language-cpp">//InventoryGrid.cpp
+FInventorySaveData UInv_InventoryGrid::GetInventorySaveData() const
+{
+	FInventorySaveData OutData;
+
+	//Store the size
+	OutData.InventorySize = FIntPoint(Rows, Columns);
+
+	for (const UInv_GridSlot* GridSlot : GridSlots)
+	{
+		//Only save anchor (upper-left) slots to avoid duplicating multi-tile
+		if (!GridSlot->IsAvailable()
+			&& GridSlot->GetInventoryItem().IsValid()
+			&& GridSlot->GetUpperLeftIndex() == GridSlot->GetTileIndex())
+		{
+			FInv_SavedItemEntry Entry;
+			Entry.UpperLeftIndex = GridSlot->GetTileIndex();
+			Entry.StackCount = GridSlot->GetStackCount();
+			Entry.ItemManifest = GridSlot->GetInventoryItem()->GetItemManifest();
+			OutData.SavedItems.Add(Entry);
+		}
+	}
+
+	return OutData;
+}
+
+void UInv_InventoryGrid::LoadInventory(const FInventorySaveData& InSaveData)
+{
+	//Restore inventory size
+	Rows = InSaveData.InventorySize.X;
+	Columns = InSaveData.InventorySize.Y;
+	GridSlots.Empty();
+	ConstructGrid();
+
+	UObject* Outer = GetOwningPlayer();
+
+	for (const FInv_SavedItemEntry& Entry : InSaveData.SavedItems)
+	{
+		if (!GridSlots.IsValidIndex(Entry.UpperLeftIndex))
+		{
+			UE_LOG(LogInventoryPlugin, Warning, TEXT("LoadInventory: invalid index %d, skipping"),
+				Entry.UpperLeftIndex);
+			continue;
+		}
+
+		FInv_ItemManifest ManifestCopy = Entry.ItemManifest;
+		UInv_InventoryItem* NewItem = ManifestCopy.Manifest(Outer);
+		if (!NewItem) continue;
+
+		NewItem->SetTotalStackCount(Entry.StackCount);
+		AddItemAtIndex(NewItem, Entry.UpperLeftIndex, NewItem->IsStackable(), Entry.StackCount);
+		UpdateGridSlots(NewItem, Entry.UpperLeftIndex, NewItem->IsStackable(), Entry.StackCount);
+
+		InventoryComponent->GetInventoryList().AddEntry(NewItem);
+	}
+}</code></pre>
+        </div>
+    </div>
+
+    <h2>4. Code Repository</h2>
     <a href="https://github.com/Junk9660/UE5_InventoryPlugin" class="btn" target="_blank">View Repository on GitHub</a>
 
     <div class="contact-box">
@@ -53,6 +165,28 @@
             <a href="mailto:junk9660@tuta.io" style="color: #38bdf8; font-weight: bold; text-decoration: none; font-size: 1.1rem;">junk9660@tuta.io</a>
         </div>
     </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-c.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-cpp.min.js"></script>
+
+    <script>
+        function copyCode(button) {
+            const codeContainer = button.nextElementSibling;
+            const codeBlock = codeContainer.querySelector('code');
+
+            navigator.clipboard.writeText(codeBlock.innerText).then(() => {
+                const originalText = button.innerText;
+                button.innerText = 'Copied!';
+                button.style.background = '#0284c7';
+
+                setTimeout(() => {
+                    button.innerText = originalText;
+                    button.style.background = '#334155';
+                }, 2000);
+            });
+        }
+    </script>
 
 </body>
 </html>

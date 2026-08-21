@@ -32,13 +32,69 @@
         <li><strong>Custom Extension — Save System Integration:</strong> Serialized grid item coordinates, stack quantities, and custom item struct parameters directly into the <code>USaveGame</code> architecture. <a href="./save_system/index.html">More info here.</a></li>
     </ul>
 
-    <h2>3. Persistence & Component Architecture</h2>
-    <p>Diagram illustrating how the inventory component interfaces with the dynamic save system during write operations.</p>
-    <img src="inventory_architecture.png" alt="Inventory System Flow Diagram">
+    <h2>3. Technical Deep-Dives</h2>
+    <div class="feature-card">
+        <h3>Custom C++ logic for 90° matrix rotation:</h3>
+        <p>Modification of the GridFragment</p>
+        <div class="code-container">
+            <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+            <pre><code class="language-cpp">// Inv_ItemFragment.h
+//Handle rotation
+FIntPoint GetEffectiveSize() const { return bIsRotated ? FIntPoint(GridSize.Y, GridSize.X) : GridSize;}
+void ToggleRotation() const	{bIsRotated = !bIsRotated;}
+bool IsRotated() const { return bIsRotated; }
+bool CanBeRotated() const { return bCanBeRotate; }
+        </code></pre>
+        </div>
+        <p>Call Rotation in the InventoryGrid</p>
+        <div class="code-container">
+            <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+            <pre><code class="language-cpp">//InventoryGrid.cpp
+void UInv_InventoryGrid::TryRotateHoverItem()
+{
+	if (HoverItem && HoverItem->GetInventoryItem())
+	{
+		UInv_InventoryItem* Item = HoverItem->GetInventoryItem();
+		if (const FInv_GridFragment* GridFragment = GetFragment<FInv_GridFragment>(HoverItem->GetInventoryItem(), FragmentTags::GridFragment))
+		{
+			if (!GridFragment->CanBeRotated()) return;
+			GridFragment->ToggleRotation();
+			UE_LOG(LogInventoryPlugin, Log, TEXT("UInv_InventoryGrid::TryRotateHoverItem - Rotate hover item"));
 
-    <h2>4. C++ Code Snippets</h2>
-    <p>Custom C++ logic for 90° matrix rotation and slot boundary verification:</p>
-    <img src="inventory_rotation_code.png" alt="Carbon C++ Item Rotation Snippet">
+			AssignHoverItem(Item); //refresh visual
+		}
+	}
+}</code></pre>
+        </div>
+        <p>Handle Rotation offset</p>
+        <div class="code-container">
+            <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+            <pre><code class="language-cpp">//InventoryGrid.cpp
+FVector2D UInv_InventoryGrid::GetRotationOffset(const FInv_GridFragment* GridFragment) const
+{
+	if (!GridFragment->IsRotated())
+	{
+		return FVector2D::ZeroVector;
+	}
+
+	FIntPoint Size = GridFragment->GetGridSize();
+	/**
+	 * MATH EXPLANATION:
+	 * When rotating a non-square item (e.g., 2x1) around center (0.5, 0.5),
+	 * the new visual "top-left" is shifted. To snap it back to the grid:
+	 * Offset = (Width - Height) * TileSize * 0.5
+	 */
+	float OffsetX = (Size.Y - Size.X) * TileSize * 0.5f;
+	float OffsetY = (Size.X - Size.Y) * TileSize * 0.5f;
+
+	return FVector2D(OffsetX, OffsetY);
+}
+            </code></pre>
+        </div>
+    </div>
+
+    <h2>4. Improvements</h2>
+    <p>Update UI to allow compatibility with controllers (CommonUI) and visual identity.</p>
 
     <h2>5. Code Repository</h2>
     <a href="https://github.com/Junk9660/UE5_InventoryPlugin" class="btn" target="_blank">View Repository on GitHub</a>
