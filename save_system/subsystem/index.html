@@ -14,7 +14,7 @@
     <h1>UE5 C++ Subsystem & Data Storage</h1>
     <p><strong>Engine Version:</strong> Unreal Engine 5.6 | <strong>Language:</strong> C++</p>
 
-    <div class="context-box">
+    <div class="attribution-box">
     <h3 style="margin-top:0;">Architecture Context & Baseline</h3>
     <p>
         Centralizes save state management via a custom <code>UGameInstanceSubsystem</code>. The subsystem orchestrates non-blocking asynchronous disk operations (<code>AsyncSaveGameToSlot</code> / <code>AsyncLoadGameFromSlot</code>), delegates game state serialization across world actors, and manages modular data containers stored inside a custom <code>UMySaveGame</code> binary wrapper.
