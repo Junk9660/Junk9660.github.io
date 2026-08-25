@@ -26,26 +26,57 @@
 
     <h2>2. Key Technical Features</h2>
     <ul>
-        <li><strong>Architecture Pattern:</strong> Describe the overall structure (e.g., Component-based, Interface-driven, State Machine).</li>
-        <li><strong>Core C++ Logic:</strong> Mention specific C++ features used (e.g., Delegates, Async traces, Templates, Struct serialization).</li>
-        <li><strong>Performance Optimization:</strong> Highlight memory handling, pooling, tick minimization, or caching methods.</li>
-        <li><strong>Edge Case Handling:</strong> Detail how the code responds to errors, interruptions, dynamic destruction, or full/empty states.</li>
+        <li><strong>StateTree:</strong> Driven by StateTree, custom Tasks and evaluators.</li>
+        <li><strong>Multiple Perceptions:</strong> Receive sight and hearing from AIController for StatTree state selection with ENUM.</li>
+        <li><strong>EQS usage:</strong> Use of EQS for snipping position and roaming position.</li>
+        <li><strong>Component Integration:</strong> Use of Loot and Combat Component to extend NPC abilities.</li>
     </ul>
 
     <h2>3. System Architecture & Data Flow</h2>
     <p>Visual overview showing class relations, data streams, or component interaction.</p>
-    <img src="system-architecture.png" alt="System Architecture Diagram">
+    <img src="ai-architecture.png" alt="System Architecture Diagram">
 
-    <h2>4. C++ Code Highlights</h2>
-    <p>Key header file declarations or core functions generated via Carbon/Ray.so:</p>
-    <img src="code-snippet.png" alt="Carbon C++ Snippet">
+    <h2>4. Technical Deep-Dives</h2>
+    <div class="feature-card">
+        <h3>Camera detection</h3>
+        <p>Use of <code>UAlarmManager</code> to send information to the Evaluator to broadcast location to NPC</p>
+        <div class="code-container">
+            <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+            <pre><code class="language-cpp">//Evaluator.cpp
+void USTEval_Perception::HandleCameraDetection(AActor* DetectedActor, AActor* DetectingCamera, int AreaId)
+{
+	if (Character->TeamId == AreaId)
+	{
+		if (DetectedActor && !bCameraInvestigation)
+		{
+			if (!AIController.IsValid()) return;
+			bCameraInvestigation = true;
+			if (AIController->CurrentStateTreeState != EStateTreeEvent::Attack)
+			{
+				AcquiredTarget = DetectedActor;
+				LastKnownLocation = AcquiredTarget->GetActorLocation();
+				UE_LOG(LogSTEvalPerception, Warning, TEXT("USTEval_Perception::HandleCameraDetection"));
 
-    <h2>5. Blueprint & Designer Exposure</h2>
-    <p>Interactive graph showing C++ delegate triggers or UMG bindings:</p>
-    <iframe src="https://blueprintue.com/render/YOUR_BP_ID/" class="bp-embed" scrolling="no"></iframe>
+                AIController->AcquiredTarget = DetectedActor;
+				AIController->CurrentStateTreeState = EStateTreeEvent::Investigate;
+			}
+		}
+	}
+}</code></pre>
+        </div>
+    </div>
 
-    <h2>6. Code Repository</h2>
-    <a href="https://github.com/Junk9660/YOUR-REPO-NAME" class="btn" target="_blank">View Repository on GitHub</a>
+
+    <h2>5. State Tree for Enemies</h2>
+    <p>State Tree representation to handle enemy NPC:</p>
+    <img src="state-tree-ai.png" alt="AI StateTree Enemy">
+
+    <h2>6. Improvements</h2>
+    <ul>
+        <li>Use of StateTree Event to transition between States</li>
+<!--        <li>Replace Evaluator with Global Tasks in case of deprecated feature</li>-->
+    </ul>
+
 
     <div class="contact-box">
         <div>
@@ -53,6 +84,28 @@
             <a href="mailto:junk9660@tuta.io" style="color: #38bdf8; font-weight: bold; text-decoration: none; font-size: 1.1rem;">junk9660@tuta.io</a>
         </div>
     </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-c.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-cpp.min.js"></script>
+
+    <script>
+        function copyCode(button) {
+            const codeContainer = button.nextElementSibling;
+            const codeBlock = codeContainer.querySelector('code');
+
+            navigator.clipboard.writeText(codeBlock.innerText).then(() => {
+                const originalText = button.innerText;
+                button.innerText = 'Copied!';
+                button.style.background = '#0284c7';
+
+                setTimeout(() => {
+                    button.innerText = originalText;
+                    button.style.background = '#334155';
+                }, 2000);
+            });
+        }
+    </script>
 
 </body>
 </html>
